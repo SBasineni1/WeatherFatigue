@@ -151,6 +151,8 @@ body {
     margin-bottom: 28px;
     flex-wrap: wrap;
     gap: 16px;
+    position: relative;
+    z-index: 200;
 }
 
 /* ── Dropdown ───────────────────────────────────────────── */
@@ -232,6 +234,8 @@ body {
     gap: 10px;
     margin-bottom: 28px;
     overflow-x: auto;
+    position: relative;
+    z-index: 1;
     scrollbar-width: none;
 }
 .stats-strip::-webkit-scrollbar { display: none; }
