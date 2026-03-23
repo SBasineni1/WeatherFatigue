@@ -157,6 +157,7 @@ body {
 .custom-select {
     position: relative;
     min-width: 220px;
+    z-index: 200;
 }
 .select-btn {
     width: 100%;
