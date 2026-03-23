@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storm Warning Verification Explorer | WeatherFatigue</title>
+    <meta name="description" content="Explore storm warning verification rates across US regions. Compare warned vs. unwarned severe weather reports by forecast office.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ═══ SECTION 1: Intro / Hero ═══ -->
+    <section class="section section-intro" id="intro">
+        <div class="container narrow">
+            <p class="eyebrow reveal">WeatherFatigue Project</p>
+            <h1 class="reveal d1">Are Storm Warnings<br><span class="accent">Actually Verified?</span></h1>
+            <p class="subtitle reveal d2">Exploring how often severe weather warnings across the United States are confirmed by actual storm reports — and what that means for public trust.</p>
+            <div class="divider reveal d3"></div>
+            <div class="intro-body reveal d4">
+                <p>Every year, the National Weather Service issues thousands of severe thunderstorm and tornado warnings. But how many of those warnings are actually verified by real-world storm reports? The answer varies dramatically by region and forecast office.</p>
+                <p>This project analyzes over 600,000 local storm reports and 400,000 warning polygons to understand warning verification patterns across the country. The data spans from 2008 to 2023 and covers every NWS Weather Forecast Office in the contiguous United States.</p>
+                <p>Scroll down to explore the data yourself.</p>
+            </div>
+            <div class="scroll-hint reveal d5">
+                <span>↓</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 2: Dashboard ═══ -->
+    <section class="section section-dashboard" id="dashboard">
+        <div class="container">
+
+            <!-- Region selector -->
+            <div class="dash-header reveal">
+                <h2 class="section-title">Explore by Region</h2>
+                <div class="custom-select" id="customSelect">
+                    <button class="select-btn" id="selectBtn" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="select-icon">🇺🇸</span>
+                        <span class="select-text">All United States</span>
+                        <svg class="select-arrow" width="14" height="14" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </button>
+                    <ul class="select-dropdown" id="selectDropdown" role="listbox">
+                        <li data-region="all" data-icon="🇺🇸" class="selected">All United States</li>
+                        <li data-region="Northeast" data-icon="🔴">Northeast</li>
+                        <li data-region="South" data-icon="🔵">South</li>
+                        <li data-region="Midwest" data-icon="🟢">Midwest</li>
+                        <li data-region="West" data-icon="🟡">West</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Stats strip -->
+            <div class="stats-strip reveal">
+                <div class="stat-pill">
+                    <span class="pill-val" id="pillReports">—</span>
+                    <span class="pill-label">Reports</span>
+                </div>
+                <div class="stat-pill warned">
+                    <span class="pill-val" id="pillWarned">—</span>
+                    <span class="pill-label">Warned</span>
+                </div>
+                <div class="stat-pill unwarned">
+                    <span class="pill-val" id="pillUnwarned">—</span>
+                    <span class="pill-label">Unwarned</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-val" id="pillRate">—</span>
+                    <span class="pill-label">Avg Verify %</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="pill-val" id="pillWFOs">—</span>
+                    <span class="pill-label">Offices</span>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="panel reveal">
+                <div class="panel-header">
+                    <h3 class="panel-title">Storm Reports Map</h3>
+                    <div class="panel-right">
+                        <span class="legend-item"><span class="dot teal"></span> Warned</span>
+                        <span class="legend-item"><span class="dot coral"></span> Unwarned</span>
+                        <label class="chip-toggle"><input type="checkbox" id="filterWarned" checked><span class="chip">Warned</span></label>
+                        <label class="chip-toggle"><input type="checkbox" id="filterUnwarned" checked><span class="chip">Unwarned</span></label>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- Chart -->
+            <div class="panel reveal">
+                <h3 class="panel-title">Verification Rate by Office</h3>
+                <p class="panel-desc">Average verification rate across all years for each NWS forecast office in the selected region.</p>
+                <div class="chart-container">
+                    <canvas id="verificationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 3: Closing Text ═══ -->
+    <section class="section section-closing" id="closing">
+        <div class="container narrow">
+            <h2 class="section-title reveal">What Does This Mean?</h2>
+            <div class="closing-body reveal">
+                <p>The data reveals significant variation in warning verification rates across different NWS offices and regions. Some offices consistently verify over 60% of their warnings, while others fall below 30%.</p>
+                <p>These differences matter. When warnings go unverified repeatedly, public trust can erode — a phenomenon known as the "cry wolf" effect. People in areas with lower verification rates may become desensitized to warnings, leading to slower response times during genuine severe weather events.</p>
+                <p>Understanding these patterns is the first step toward improving warning systems and maintaining the public trust that saves lives during severe weather.</p>
+            </div>
+            <div class="divider reveal"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank">Iowa Environmental Mesonet COW</a> · WeatherFatigue Project</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
