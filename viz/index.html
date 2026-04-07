@@ -112,7 +112,70 @@
         </div>
     </section>
 
-    <!-- ═══ SECTION 3: Closing Text ═══ -->
+    <!-- ═══ SECTION 3: Heatmap ═══ -->
+    <section class="section section-heatmap" id="heatmap">
+        <div class="container">
+            <div class="heatmap-intro reveal">
+                <p class="eyebrow">Your Warning History</p>
+                <h2 class="section-title">365 Days × 17 Years</h2>
+                <p class="panel-desc">Every day a warning was issued by your local forecast office — colored by whether it was verified by a real storm report. Each row is one year. Each column is one day of the year.</p>
+            </div>
+
+            <!-- WFO Selector -->
+            <div class="heatmap-controls reveal">
+                <div class="hm-select-wrap" id="hmSelectWrap">
+                    <div class="hm-search-row">
+                        <svg class="hm-search-icon" width="14" height="14" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="Search forecast office…" autocomplete="off" spellcheck="false">
+                        <span class="hm-selected-badge" id="hmSelectedBadge"></span>
+                    </div>
+                    <ul class="hm-dropdown" id="hmDropdown" role="listbox"></ul>
+                </div>
+
+                <!-- Summary stats for selected WFO -->
+                <div class="hm-stats" id="hmStats" style="display:none;">
+                    <div class="hm-stat">
+                        <span class="hm-stat-val" id="hmStatTotal">—</span>
+                        <span class="hm-stat-label">Total Warnings</span>
+                    </div>
+                    <div class="hm-stat verified">
+                        <span class="hm-stat-val" id="hmStatVerified">—</span>
+                        <span class="hm-stat-label">Verified</span>
+                    </div>
+                    <div class="hm-stat unverified">
+                        <span class="hm-stat-val" id="hmStatUnverified">—</span>
+                        <span class="hm-stat-label">Unverified</span>
+                    </div>
+                    <div class="hm-stat">
+                        <span class="hm-stat-val" id="hmStatRate">—</span>
+                        <span class="hm-stat-label">Verify Rate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heatmap canvas -->
+            <div class="heatmap-panel reveal" id="hmPanel" style="display:none;">
+                <div class="heatmap-canvas-scroll">
+                    <canvas id="hmCanvas"></canvas>
+                </div>
+                <div class="heatmap-legend">
+                    <span class="hm-leg-item"><span class="hm-leg-dot verified"></span>Verified</span>
+                    <span class="hm-leg-item"><span class="hm-leg-dot unverified"></span>Unverified</span>
+                    <span class="hm-leg-item"><span class="hm-leg-dot empty"></span>No warnings</span>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="heatmap-empty reveal" id="hmEmpty">
+                <p>← Select a forecast office above to see its 17-year warning history</p>
+            </div>
+
+            <!-- Tooltip -->
+            <div class="hm-tooltip" id="hmTooltip" style="display:none;"></div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 4: Closing Text ═══ -->
     <section class="section section-closing" id="closing">
         <div class="container narrow">
             <h2 class="section-title reveal">What Does This Mean?</h2>
