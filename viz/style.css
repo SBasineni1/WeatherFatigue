@@ -472,21 +472,23 @@ body {
     color: var(--accent);
     font-weight: 600;
 }
-.hm-dropdown-code {
-    font-weight: 700;
-    font-size: 0.82rem;
-    color: var(--text-primary);
-    min-width: 40px;
-}
 .hm-dropdown-city {
     flex: 1;
-    color: var(--text-secondary);
-    font-size: 0.82rem;
+    color: var(--text-primary);
+    font-size: 0.86rem;
+    font-weight: 500;
 }
-.hm-dropdown-region {
-    font-size: 0.7rem;
+.hm-dropdown-city mark {
+    background: none;
+    color: var(--accent);
+    font-weight: 700;
+}
+.hm-dropdown-code {
+    font-size: 0.72rem;
+    font-weight: 600;
     color: var(--text-secondary);
-    opacity: 0.6;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
 }
 .hm-dropdown-empty {
     color: var(--text-secondary);

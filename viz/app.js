@@ -418,13 +418,24 @@ function buildHmDropdown(filter = "") {
     const ul = document.getElementById("hmDropdown");
     ul.innerHTML = "";
 
-    const wfos = Object.keys(allHeatmap.heatmap).sort();
-    const q = filter.toLowerCase();
+    const q = filter.toLowerCase().trim();
 
-    const matches = wfos.filter(wfo => {
-        const city = (WFO_NAMES[wfo] || "").toLowerCase();
-        return wfo.toLowerCase().includes(q) || city.includes(q);
-    });
+    // Build list sorted by city name
+    const entries = Object.keys(allHeatmap.heatmap).map(wfo => ({
+        wfo,
+        city:   WFO_NAMES[wfo] || wfo,
+        region: allHeatmap.meta[wfo]?.region || "",
+    }));
+
+    // Sort alphabetically by city name
+    entries.sort((a, b) => a.city.localeCompare(b.city));
+
+    const matches = q
+        ? entries.filter(e =>
+            e.city.toLowerCase().includes(q) ||
+            e.wfo.toLowerCase().includes(q) ||
+            e.region.toLowerCase().includes(q))
+        : entries;
 
     if (matches.length === 0) {
         const li = document.createElement("li");
@@ -434,18 +445,25 @@ function buildHmDropdown(filter = "") {
         return;
     }
 
-    matches.forEach(wfo => {
-        const city   = WFO_NAMES[wfo] || "";
-        const region = allHeatmap.meta[wfo]?.region || "";
+    matches.forEach(({ wfo, city, region }) => {
         const li = document.createElement("li");
         if (wfo === currentHeatmapWFO) li.classList.add("selected");
+
+        // Highlight matched portion in city name
+        let cityHtml = city;
+        if (q) {
+            const idx = city.toLowerCase().indexOf(q);
+            if (idx !== -1) {
+                cityHtml = city.slice(0, idx)
+                    + `<mark>${city.slice(idx, idx + q.length)}</mark>`
+                    + city.slice(idx + q.length);
+            }
+        }
+
         li.innerHTML = `
-            <span class="hm-dropdown-code">${wfo}</span>
-            <span class="hm-dropdown-city">${city || "—"}</span>
-            <span class="hm-dropdown-region">${region}</span>`;
-        li.addEventListener("click", () => {
-            selectHmWFO(wfo);
-        });
+            <span class="hm-dropdown-city">${cityHtml}</span>
+            <span class="hm-dropdown-code">${wfo}</span>`;
+        li.addEventListener("click", () => selectHmWFO(wfo));
         ul.appendChild(li);
     });
 }
@@ -506,7 +524,7 @@ function selectHmWFO(wfo) {
     const input = document.getElementById("hmSearchInput");
     const badge = document.getElementById("hmSelectedBadge");
 
-    input.value = city ? `${wfo} — ${city}` : wfo;
+    input.value = city || wfo;
     badge.textContent = wfo;
     badge.classList.add("visible");
     closeHmDropdown();
