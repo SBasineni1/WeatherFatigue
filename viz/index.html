@@ -15,9 +15,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -31,7 +28,7 @@
             <div class="divider reveal d3"></div>
             <div class="intro-body reveal d4">
                 <p>Every year, the National Weather Service issues thousands of severe thunderstorm and tornado warnings. But how many of those warnings are actually verified by real-world storm reports? The answer varies dramatically by region and forecast office.</p>
-                <p>This project analyzes over 600,000 local storm reports and 400,000 warning polygons to understand warning verification patterns across the country. The data spans from 2008 to 2023 and covers every NWS Weather Forecast Office in the contiguous United States.</p>
+                <p>This project analyzes over 600,000 local storm reports and 400,000 warning polygons to understand warning verification patterns across the country. The data spans from 2008 to 2025 and covers every NWS Weather Forecast Office in the contiguous United States.</p>
                 <p>Scroll down to explore the data yourself.</p>
             </div>
             <div class="scroll-hint reveal d5">
@@ -40,28 +37,9 @@
         </div>
     </section>
 
-    <!-- ═══ SECTION 2: Dashboard ═══ -->
+    <!-- ═══ SECTION 2: Map ═══ -->
     <section class="section section-dashboard" id="dashboard">
         <div class="container">
-
-            <!-- Region selector -->
-            <div class="dash-header reveal">
-                <h2 class="section-title">Explore by Region</h2>
-                <div class="custom-select" id="customSelect">
-                    <button class="select-btn" id="selectBtn" aria-haspopup="listbox" aria-expanded="false">
-                        <span class="select-icon">🇺🇸</span>
-                        <span class="select-text">All United States</span>
-                        <svg class="select-arrow" width="14" height="14" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                    </button>
-                    <ul class="select-dropdown" id="selectDropdown" role="listbox">
-                        <li data-region="all" data-icon="🇺🇸" class="selected">All United States</li>
-                        <li data-region="Northeast" data-icon="🔴">Northeast</li>
-                        <li data-region="South" data-icon="🔵">South</li>
-                        <li data-region="Midwest" data-icon="🟢">Midwest</li>
-                        <li data-region="West" data-icon="🟡">West</li>
-                    </ul>
-                </div>
-            </div>
 
             <!-- Stats strip -->
             <div class="stats-strip reveal">
@@ -76,10 +54,6 @@
                 <div class="stat-pill unwarned">
                     <span class="pill-val" id="pillUnwarned">—</span>
                     <span class="pill-label">Unwarned</span>
-                </div>
-                <div class="stat-pill">
-                    <span class="pill-val" id="pillRate">—</span>
-                    <span class="pill-label">Avg Verify %</span>
                 </div>
                 <div class="stat-pill">
                     <span class="pill-val" id="pillWFOs">—</span>
@@ -100,15 +74,6 @@
                 </div>
                 <div id="map"></div>
             </div>
-
-            <!-- Chart -->
-            <div class="panel reveal">
-                <h3 class="panel-title">Verification Rate by Office</h3>
-                <p class="panel-desc">Average verification rate across all years for each NWS forecast office in the selected region.</p>
-                <div class="chart-container">
-                    <canvas id="verificationChart"></canvas>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -118,43 +83,48 @@
             <div class="heatmap-intro reveal">
                 <p class="eyebrow">Your Warning History</p>
                 <h2 class="section-title">365 Days × 17 Years</h2>
-                <p class="panel-desc">Every day a warning was issued by your local forecast office — colored by whether it was verified by a real storm report. Each row is one year. Each column is one day of the year.</p>
+                <p class="hm-desc">Every day a warning was issued by your local forecast office — colored by whether it was verified by a real storm report. Each row is one year. Each column is one day of the year.</p>
             </div>
 
-            <!-- WFO Selector -->
-            <div class="heatmap-controls reveal">
-                <div class="hm-select-wrap" id="hmSelectWrap">
-                    <div class="hm-search-row">
-                        <svg class="hm-search-icon" width="14" height="14" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                        <input type="text" id="hmSearchInput" class="hm-search-input" placeholder="Search city or office (e.g. Buffalo, Boston, OUN)…" autocomplete="off" spellcheck="false">
-                        <span class="hm-selected-badge" id="hmSelectedBadge"></span>
-                    </div>
-                    <ul class="hm-dropdown" id="hmDropdown" role="listbox"></ul>
+            <!-- WFO Picker -->
+            <div class="hm-picker reveal" id="hmPicker">
+                <div class="hm-input-row">
+                    <svg class="hm-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
+                        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.6"/>
+                        <line x1="10.2" y1="10.2" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                    <input type="text" id="hmSearchInput" class="hm-search-input"
+                           placeholder="Pick your city — Buffalo, Boston, Philadelphia…"
+                           autocomplete="off" spellcheck="false" aria-label="Search forecast office">
+                    <button class="hm-clear-btn" id="hmClearBtn" aria-label="Clear selection" style="display:none;">✕</button>
                 </div>
+                <div class="hm-list-box" id="hmListBox">
+                    <ul class="hm-list" id="hmList" role="listbox"></ul>
+                </div>
+            </div>
 
-                <!-- Summary stats for selected WFO -->
-                <div class="hm-stats" id="hmStats" style="display:none;">
-                    <div class="hm-stat">
-                        <span class="hm-stat-val" id="hmStatTotal">—</span>
-                        <span class="hm-stat-label">Total Warnings</span>
-                    </div>
-                    <div class="hm-stat verified">
-                        <span class="hm-stat-val" id="hmStatVerified">—</span>
-                        <span class="hm-stat-label">Verified</span>
-                    </div>
-                    <div class="hm-stat unverified">
-                        <span class="hm-stat-val" id="hmStatUnverified">—</span>
-                        <span class="hm-stat-label">Unverified</span>
-                    </div>
-                    <div class="hm-stat">
-                        <span class="hm-stat-val" id="hmStatRate">—</span>
-                        <span class="hm-stat-label">Verify Rate</span>
-                    </div>
+            <!-- Summary stats -->
+            <div class="hm-stats" id="hmStats" style="display:none;">
+                <div class="hm-stat">
+                    <span class="hm-stat-val" id="hmStatTotal">—</span>
+                    <span class="hm-stat-label">Total Warnings</span>
+                </div>
+                <div class="hm-stat verified">
+                    <span class="hm-stat-val" id="hmStatVerified">—</span>
+                    <span class="hm-stat-label">Verified</span>
+                </div>
+                <div class="hm-stat unverified">
+                    <span class="hm-stat-val" id="hmStatUnverified">—</span>
+                    <span class="hm-stat-label">Unverified</span>
+                </div>
+                <div class="hm-stat">
+                    <span class="hm-stat-val" id="hmStatRate">—</span>
+                    <span class="hm-stat-label">Verify Rate</span>
                 </div>
             </div>
 
             <!-- Heatmap canvas -->
-            <div class="heatmap-panel reveal" id="hmPanel" style="display:none;">
+            <div class="heatmap-panel" id="hmPanel" style="display:none;">
                 <div class="heatmap-canvas-scroll">
                     <canvas id="hmCanvas"></canvas>
                 </div>
@@ -166,8 +136,8 @@
             </div>
 
             <!-- Empty state -->
-            <div class="heatmap-empty reveal" id="hmEmpty">
-                <p>← Select a forecast office above to see its 17-year warning history</p>
+            <div class="heatmap-empty" id="hmEmpty">
+                <p>Select a city above to see its warning history</p>
             </div>
 
             <!-- Tooltip -->
