@@ -311,13 +311,18 @@
     <!-- ═══ SECTION 8: Heatmap ═══ -->
     <section class="section section-heatmap" id="heatmap">
         <div class="container">
-            <div class="heatmap-intro reveal">
-                <p class="eyebrow">Your Warning History</p>
-                <h2 class="section-title">365 Days × 17 Years</h2>
-                <p class="hm-desc">Every day a warning was issued by your local forecast office — colored by whether it was verified by a real storm report. Each row is one year. Each column is one day of the year.</p>
+            <div class="editorial-col" style="padding:0; margin-bottom:28px;">
+                <div class="heatmap-intro reveal">
+                    <p class="eyebrow">Your Warning History</p>
+                    <h2 class="section-title">365 Days × 17 Years</h2>
+                </div>
+                <div class="editorial-body reveal" style="margin-top:16px;">
+                    <p>Next, you can look at your respective forecast office and investigate the warnings days and the amount of verified and unverified warnings on a given day from 2008 to 2025. Blue represents verified and red represents unverified.</p>
+                </div>
             </div>
 
-            <div class="hm-picker reveal" id="hmPicker">
+            <div class="editorial-col" style="padding:0; margin-bottom:24px;">
+                <div class="hm-picker reveal" id="hmPicker">
                 <div class="hm-input-row">
                     <svg class="hm-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
                         <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.6"/>
@@ -331,6 +336,7 @@
                 <div class="hm-list-box" id="hmListBox">
                     <ul class="hm-list" id="hmList" role="listbox"></ul>
                 </div>
+            </div>
             </div>
 
             <div class="hm-stats" id="hmStats" style="display:none;">

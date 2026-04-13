@@ -388,8 +388,8 @@ body {
 
 /* ── WFO Picker ─────────────────────────────────────────── */
 .hm-picker {
-    margin-bottom: 24px;
-    max-width: 520px;
+    margin-bottom: 0;
+    max-width: 100%;
 }
 
 .hm-input-row {
