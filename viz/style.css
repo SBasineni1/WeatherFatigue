@@ -70,22 +70,28 @@ body {
 .section-intro {
     min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     position: relative;
     background: #fafafa;
     border-bottom: 1px solid #e0e0e0;
+    padding-top: 80px;
+    padding-bottom: 60px;
 }
 
 /* Category · date eyebrow */
 .editorial-eyebrow {
     font-family: 'Inter', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: #555;
+    color: #333;
     margin-bottom: 20px;
+}
+.editorial-cat {
+    font-weight: 800;
+    color: #111;
 }
 
 /* Large serif headline */
@@ -116,18 +122,23 @@ body {
 .editorial-meta {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin-bottom: 28px;
+    gap: 6px;
+    margin-bottom: 32px;
 }
 .editorial-byline {
     font-family: 'Inter', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: #333;
+}
+.editorial-byline--edited {
+    font-size: 0.8rem;
+    color: #777;
 }
 .editorial-source {
     font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     color: #888;
+    margin-top: 4px;
 }
 .editorial-source a { color: #888; text-decoration: underline; }
 
@@ -147,6 +158,36 @@ body {
     color: #222;
     margin-bottom: 22px;
 }
+
+/* Narrative section */
+.section-narrative {
+    background: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 80px 0 90px;
+}
+
+/* Pull quote / blockquote */
+.editorial-quote {
+    margin: 32px 0;
+    padding: 0 0 0 24px;
+    border-left: 3px solid #111;
+}
+.editorial-quote p {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.1rem;
+    line-height: 1.75;
+    color: #222;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+.editorial-quote cite {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: #777;
+    font-style: normal;
+}
+
+.editorial-dropcap-p { }
 
 /* Closing section uses editorial style too */
 .section-closing {
