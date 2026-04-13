@@ -136,7 +136,7 @@ function initMap() {
         maxBoundsViscosity: 1.0,
     }).setView([38.5, -96.0], 5);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
         maxZoom: 18,
     }).addTo(map);
 
@@ -552,8 +552,8 @@ function setupHmTooltip() {
 // ══════════════════════════════════════════════════════════
 
 const CHART_DEFAULTS = {
-    color: '#7B82A8',
-    borderColor: 'rgba(200,208,224,0.07)',
+    color: '#666666',
+    borderColor: 'rgba(0,0,0,0.07)',
     font: { family: "'Inter', sans-serif", size: 11 },
 };
 
@@ -589,10 +589,10 @@ function baseChartOptions(extraY = {}) {
         maintainAspectRatio: false,
         animation: { duration: 800, easing: 'easeOutQuart' },
         plugins: { legend: { display: false }, tooltip: { enabled: true,
-            backgroundColor: 'rgba(10,10,38,0.95)',
+            backgroundColor: 'rgba(255,255,255,0.97)',
             titleColor: '#2E9CCA',
-            bodyColor: '#C8D0E0',
-            borderColor: 'rgba(46,156,202,0.3)',
+            bodyColor: '#333333',
+            borderColor: '#e0e0e0',
             borderWidth: 1,
             padding: 10,
             cornerRadius: 8,
