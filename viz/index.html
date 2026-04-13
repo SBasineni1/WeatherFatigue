@@ -6,14 +6,13 @@
     <title>Storm Warning Verification Explorer | WeatherFatigue</title>
     <meta name="description" content="Explore storm warning verification rates across US regions. Compare warned vs. unwarned severe weather reports by forecast office.">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -27,21 +26,93 @@
             <p class="subtitle reveal d2">Exploring how often severe weather warnings across the United States are confirmed by actual storm reports — and what that means for public trust.</p>
             <div class="divider reveal d3"></div>
             <div class="intro-body reveal d4">
-                <p>Every year, the National Weather Service issues thousands of severe thunderstorm and tornado warnings. But how many of those warnings are actually verified by real-world storm reports? The answer varies dramatically by region and forecast office.</p>
-                <p>This project analyzes over 600,000 local storm reports and 400,000 warning polygons to understand warning verification patterns across the country. The data spans from 2008 to 2025 and covers every NWS Weather Forecast Office in the contiguous United States.</p>
+                <p>Every year, the National Weather Service issues thousands of severe thunderstorm and tornado warnings. But how many of those warnings are actually confirmed by real-world storm reports?</p>
+                <p>This project analyzes over 14,000 warnings and 600,000 storm reports from 2008 to 2025, examining false alarm rates, lead times, geographic variation, and long-term trends.</p>
                 <p>Scroll down to explore the data yourself.</p>
             </div>
-            <div class="scroll-hint reveal d5">
-                <span>↓</span>
+            <div class="scroll-hint reveal d5"><span>↓</span></div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 2: Accuracy by Warning Type ═══ -->
+    <section class="section section-accuracy" id="accuracy">
+        <div class="container">
+            <p class="eyebrow reveal">The Core Question</p>
+            <h2 class="section-title reveal">When a Warning Goes Out,<br>What Actually Happens?</h2>
+            <p class="section-desc reveal">We analyzed 14,982 warnings from 8 NWS forecast offices (2008–2025). A warning is "verified" when at least one storm report falls within its polygon and time window.</p>
+
+            <div class="acc-cards">
+                <!-- Severe Thunderstorm -->
+                <div class="acc-card reveal">
+                    <div class="acc-header">
+                        <div class="acc-icon sv-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        </div>
+                        <span class="acc-type-label">Severe Thunderstorm</span>
+                    </div>
+                    <div class="acc-pct teal">62.5%</div>
+                    <div class="acc-pct-label">verified by a storm report</div>
+                    <div class="acc-bar-track">
+                        <div class="acc-bar-fill teal" style="width:62.5%"></div>
+                    </div>
+                    <div class="acc-breakdown">
+                        <span><span class="acc-num teal">9,003</span> verified</span>
+                        <span><span class="acc-num coral">5,059</span> false alarms</span>
+                        <span>of 14,062 total</span>
+                    </div>
+                </div>
+
+                <!-- Tornado -->
+                <div class="acc-card reveal d1">
+                    <div class="acc-header">
+                        <div class="acc-icon to-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3m14 4H7m12 4H9m8 4h-6m4 4h-2"/></svg>
+                        </div>
+                        <span class="acc-type-label">Tornado</span>
+                    </div>
+                    <div class="acc-pct coral">24.9%</div>
+                    <div class="acc-pct-label">verified by a storm report</div>
+                    <div class="acc-bar-track">
+                        <div class="acc-bar-fill coral" style="width:24.9%"></div>
+                    </div>
+                    <div class="acc-breakdown">
+                        <span><span class="acc-num teal">229</span> verified</span>
+                        <span><span class="acc-num coral">691</span> false alarms</span>
+                        <span>of 920 total</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="acc-callout reveal">
+                <p class="callout-quote">"3 out of 4 tornado warnings are never followed by a tornado."</p>
+                <p class="callout-sub">This isn't incompetence — it's by design. The NWS issues warnings early to save lives. But repeated false alarms erode public trust over time.</p>
+            </div>
+
+            <!-- Miss rate context -->
+            <div class="acc-miss-row reveal">
+                <div class="acc-miss-card">
+                    <span class="acc-miss-val">14 min</span>
+                    <span class="acc-miss-label">avg lead time when thunderstorm warnings verify</span>
+                </div>
+                <div class="acc-miss-card">
+                    <span class="acc-miss-val">7 min</span>
+                    <span class="acc-miss-label">avg lead time when tornado warnings verify</span>
+                </div>
+                <div class="acc-miss-card">
+                    <span class="acc-miss-val">37.5%</span>
+                    <span class="acc-miss-label">of severe thunderstorm warnings never confirmed</span>
+                </div>
+                <div class="acc-miss-card">
+                    <span class="acc-miss-val">75.1%</span>
+                    <span class="acc-miss-label">of tornado warnings never confirmed</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══ SECTION 2: Map ═══ -->
+    <!-- ═══ SECTION 3: Map ═══ -->
     <section class="section section-dashboard" id="dashboard">
         <div class="container">
-
-            <!-- Stats strip -->
             <div class="stats-strip reveal">
                 <div class="stat-pill">
                     <span class="pill-val" id="pillReports">—</span>
@@ -60,8 +131,6 @@
                     <span class="pill-label">Offices</span>
                 </div>
             </div>
-
-            <!-- Map -->
             <div class="panel reveal">
                 <div class="panel-header">
                     <h3 class="panel-title">Storm Reports Map</h3>
@@ -77,7 +146,143 @@
         </div>
     </section>
 
-    <!-- ═══ SECTION 3: Heatmap ═══ -->
+    <!-- ═══ SECTION 4: Geographic Variation ═══ -->
+    <section class="section section-geo" id="geo">
+        <div class="container">
+            <p class="eyebrow reveal">Geographic Variation</p>
+            <h2 class="section-title reveal">Accuracy Varies Dramatically<br>by Location</h2>
+            <p class="section-desc reveal">Across 117 forecast offices nationwide, verification rates range from under 10% to over 70%. Where you live determines how reliable your local warnings are.</p>
+
+            <div class="geo-layout">
+                <!-- Distribution chart -->
+                <div class="geo-chart-wrap panel reveal">
+                    <div class="panel-header">
+                        <h3 class="panel-title">Distribution of Verification Rates</h3>
+                        <span class="panel-subtitle">117 NWS forecast offices</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartGeo"></canvas>
+                    </div>
+                    <p class="chart-note">Most offices verify 40–70% of warnings. A significant tail falls below 30%.</p>
+                </div>
+
+                <!-- Top / Bottom offices -->
+                <div class="geo-ranks reveal d1">
+                    <div class="rank-group">
+                        <div class="rank-label teal">Most Reliable</div>
+                        <div class="rank-list" id="rankTop"></div>
+                    </div>
+                    <div class="rank-group">
+                        <div class="rank-label coral">Least Reliable</div>
+                        <div class="rank-list" id="rankBottom"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 5: Trends Over Time ═══ -->
+    <section class="section section-trends" id="trends">
+        <div class="container">
+            <p class="eyebrow reveal">Trends Over Time</p>
+            <h2 class="section-title reveal">Are Warnings<br>Getting Better?</h2>
+            <p class="section-desc reveal">Verification rates from 2008 to 2025 show meaningful improvement for severe thunderstorm warnings — but tornado accuracy remains stubbornly low.</p>
+
+            <div class="panel reveal">
+                <div class="panel-header">
+                    <h3 class="panel-title">Verification Rate 2008–2025</h3>
+                    <div class="panel-right">
+                        <span class="legend-item"><span class="dot teal"></span>Severe Thunderstorm</span>
+                        <span class="legend-item"><span class="dot coral"></span>Tornado</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartTrends"></canvas>
+                </div>
+            </div>
+
+            <div class="trends-callouts reveal">
+                <div class="trend-callout">
+                    <span class="trend-callout-val teal" id="trendSVDelta">—</span>
+                    <span class="trend-callout-label">change in thunderstorm<br>verification rate since 2008</span>
+                </div>
+                <div class="trend-callout">
+                    <span class="trend-callout-val" id="trendBestYear">—</span>
+                    <span class="trend-callout-label">best year for thunderstorm<br>accuracy in the dataset</span>
+                </div>
+                <div class="trend-callout">
+                    <span class="trend-callout-val coral" id="trendTOAvg">—</span>
+                    <span class="trend-callout-label">average tornado verification<br>rate across all years</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 6: Lead Time vs. Accuracy ═══ -->
+    <section class="section section-leadtime" id="leadtime">
+        <div class="container">
+            <p class="eyebrow reveal">The Accuracy Tradeoff</p>
+            <h2 class="section-title reveal">Earlier Warnings,<br>More False Alarms</h2>
+            <p class="section-desc reveal">Lead time is how many minutes before the event a verified warning was issued. Most correct warnings give only a narrow window — there's an inherent tradeoff between issuing early and being right.</p>
+
+            <div class="panel reveal">
+                <div class="panel-header">
+                    <h3 class="panel-title">Lead Time Distribution (verified warnings only)</h3>
+                    <div class="panel-right">
+                        <span class="legend-item"><span class="dot teal"></span>Severe Thunderstorm</span>
+                        <span class="legend-item"><span class="dot coral"></span>Tornado</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chartLeadtime"></canvas>
+                </div>
+            </div>
+
+            <div class="lt-insights reveal">
+                <div class="lt-insight">
+                    <div class="lt-big teal">12 min</div>
+                    <div class="lt-label">median lead time for<br>thunderstorm warnings</div>
+                </div>
+                <div class="lt-insight">
+                    <div class="lt-big coral">7 min</div>
+                    <div class="lt-label">median lead time for<br>tornado warnings</div>
+                </div>
+                <div class="lt-insight">
+                    <div class="lt-big">70 min</div>
+                    <div class="lt-label">maximum lead time<br>in the dataset</div>
+                </div>
+                <div class="lt-insight">
+                    <div class="lt-big">~30%</div>
+                    <div class="lt-label">of verified warnings<br>issued with ≤5 min lead</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 7: False Alarm Clustering ═══ -->
+    <section class="section section-clustering" id="clustering">
+        <div class="container">
+            <p class="eyebrow reveal">Warning Fatigue</p>
+            <h2 class="section-title reveal">False Alarms<br>Don't Come Alone</h2>
+            <p class="section-desc reveal">Across 8 forecast offices, we tracked consecutive false alarm streaks — back-to-back warnings with no confirming storm report. These clusters are where fatigue builds.</p>
+
+            <div class="cluster-offices reveal" id="clusterOffices"></div>
+
+            <div class="cluster-callout panel reveal">
+                <div class="cluster-callout-inner">
+                    <div class="cluster-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <div>
+                        <p class="cluster-callout-title">The Cry Wolf Effect</p>
+                        <p class="cluster-callout-body">Research shows that after experiencing multiple false alarms, people take longer to respond to subsequent warnings — or ignore them entirely. In Oklahoma City's forecast area, residents may experience up to 16 consecutive unverified warnings before seeing a real event.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ SECTION 8: Heatmap ═══ -->
     <section class="section section-heatmap" id="heatmap">
         <div class="container">
             <div class="heatmap-intro reveal">
@@ -86,7 +291,6 @@
                 <p class="hm-desc">Every day a warning was issued by your local forecast office — colored by whether it was verified by a real storm report. Each row is one year. Each column is one day of the year.</p>
             </div>
 
-            <!-- WFO Picker -->
             <div class="hm-picker reveal" id="hmPicker">
                 <div class="hm-input-row">
                     <svg class="hm-search-icon" width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -103,7 +307,6 @@
                 </div>
             </div>
 
-            <!-- Summary stats -->
             <div class="hm-stats" id="hmStats" style="display:none;">
                 <div class="hm-stat">
                     <span class="hm-stat-val" id="hmStatTotal">—</span>
@@ -123,7 +326,6 @@
                 </div>
             </div>
 
-            <!-- Heatmap canvas -->
             <div class="heatmap-panel" id="hmPanel" style="display:none;">
                 <div class="heatmap-canvas-scroll">
                     <canvas id="hmCanvas"></canvas>
@@ -135,33 +337,29 @@
                 </div>
             </div>
 
-            <!-- Empty state -->
             <div class="heatmap-empty" id="hmEmpty">
                 <p>Select a city above to see its warning history</p>
             </div>
-
-            <!-- Tooltip -->
             <div class="hm-tooltip" id="hmTooltip" style="display:none;"></div>
         </div>
     </section>
 
-    <!-- ═══ SECTION 4: Closing Text ═══ -->
+    <!-- ═══ SECTION 9: Closing ═══ -->
     <section class="section section-closing" id="closing">
         <div class="container narrow">
-            <h2 class="section-title reveal">What Does This Mean?</h2>
+            <h2 class="section-title reveal">Warning Fatigue<br>Is <span class="accent">Real</span></h2>
             <div class="closing-body reveal">
-                <p>The data reveals significant variation in warning verification rates across different NWS offices and regions. Some offices consistently verify over 60% of their warnings, while others fall below 30%.</p>
-                <p>These differences matter. When warnings go unverified repeatedly, public trust can erode — a phenomenon known as the "cry wolf" effect. People in areas with lower verification rates may become desensitized to warnings, leading to slower response times during genuine severe weather events.</p>
-                <p>Understanding these patterns is the first step toward improving warning systems and maintaining the public trust that saves lives during severe weather.</p>
+                <p>The data reveals a structural tension in weather warning systems: issuing warnings early enough to be useful means accepting a high false alarm rate. For tornado warnings, 3 in 4 go unverified — not because forecasters are failing, but because the atmosphere is hard to predict.</p>
+                <p>The consequence is cumulative. Repeated unverified warnings — especially when they cluster in consecutive streaks — erode the trust that makes warnings life-saving. People in high-FAR areas become desensitized, slowing their response when a real event arrives.</p>
+                <p>Understanding these patterns is the first step. Better communication about why false alarms happen, and how to interpret warnings probabilistically, may be more effective than simply trying to raise accuracy rates.</p>
             </div>
             <div class="divider reveal"></div>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="site-footer">
         <div class="container">
-            <p>Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank">Iowa Environmental Mesonet COW</a> · WeatherFatigue Project</p>
+            <p>Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank">Iowa Environmental Mesonet COW</a> · 14,982 warnings · 8 NWS offices · 2008–2025 · WeatherFatigue Project</p>
         </div>
     </footer>
 
