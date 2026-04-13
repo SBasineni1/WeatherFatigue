@@ -174,14 +174,6 @@ function updateMapAndStats() {
           .addTo(markerLayer);
     }
 
-    // Stats
-    const warned   = allReports.filter(r => r.warned);
-    const unwarned = allReports.filter(r => !r.warned);
-    const wfos     = new Set(allReports.map(r => r.wfo));
-    animateCounter("pillReports",  allReports.length);
-    animateCounter("pillWarned",   warned.length);
-    animateCounter("pillUnwarned", unwarned.length);
-    animateCounter("pillWFOs",     wfos.size);
 }
 
 function animateCounter(id, target) {
