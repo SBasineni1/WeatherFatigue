@@ -683,9 +683,9 @@ body {
 .callout-sub { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; max-width: 600px; }
 .acc-miss-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
 @media (max-width: 700px) { .acc-miss-row { grid-template-columns: 1fr 1fr; } }
-.acc-miss-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 16px; display: flex; flex-direction: column; gap: 6px;  }
-.acc-miss-val { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--text-primary); }
-.acc-miss-label { font-size: 0.7rem; color: var(--text-secondary); line-height: 1.5; }
+.acc-miss-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;  }
+.acc-miss-val { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--text-primary); }
+.acc-miss-label { font-size: 0.65rem; color: var(--text-secondary); line-height: 1.4; }
 
 /* — Geographic Variation — */
 .section-geo { background: var(--bg-primary); border-top: 1px solid var(--border); }
