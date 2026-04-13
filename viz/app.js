@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initMap();
     updateMapAndStats();
     initHeatmap();
+    initAnalytics();
 });
 
 // ══════════════════════════════════════════════════════════
@@ -544,4 +545,291 @@ function setupHmTooltip() {
     });
 
     canvas.addEventListener("mouseleave", () => { tooltip.style.display = "none"; });
+}
+
+// ══════════════════════════════════════════════════════════
+// Analytics — 5 new sections
+// ══════════════════════════════════════════════════════════
+
+const CHART_DEFAULTS = {
+    color: '#7B82A8',
+    borderColor: 'rgba(200,208,224,0.07)',
+    font: { family: "'Inter', sans-serif", size: 11 },
+};
+
+function chartDefaults() {
+    if (typeof Chart === 'undefined') return;
+    Chart.defaults.color         = CHART_DEFAULTS.color;
+    Chart.defaults.borderColor   = CHART_DEFAULTS.borderColor;
+    Chart.defaults.font.family   = CHART_DEFAULTS.font.family;
+    Chart.defaults.font.size     = CHART_DEFAULTS.font.size;
+}
+
+async function initAnalytics() {
+    if (typeof Chart === 'undefined') return;
+    chartDefaults();
+    let analytics;
+    try {
+        const r = await fetch('data/analytics.json');
+        analytics = await r.json();
+    } catch(e) { console.warn('analytics.json not found', e); return; }
+
+    buildGeoChart(analytics.geo);
+    buildTrendsChart(analytics.trends);
+    buildLeadtimeChart(analytics.leadtime);
+    buildClusterCards(analytics.clustering);
+    buildTrendsCallouts(analytics.trends);
+}
+
+// ── Chart helpers ─────────────────────────────────────────
+
+function baseChartOptions(extraY = {}) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 800, easing: 'easeOutQuart' },
+        plugins: { legend: { display: false }, tooltip: { enabled: true,
+            backgroundColor: 'rgba(10,10,38,0.95)',
+            titleColor: '#2E9CCA',
+            bodyColor: '#C8D0E0',
+            borderColor: 'rgba(46,156,202,0.3)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8,
+        }},
+        scales: {
+            x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' } },
+            y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' }, ...extraY },
+        },
+    };
+}
+
+// ── 1. Geographic distribution histogram ──────────────────
+
+function buildGeoChart(geo) {
+    const el = document.getElementById('chartGeo');
+    if (!el || !geo?.length) return;
+
+    // Bin WFOs by verification rate
+    const bins = [0,10,20,30,40,50,60,70,80,90,100];
+    const labels = bins.slice(0,-1).map((b,i) => `${b}–${bins[i+1]}%`);
+    const counts = new Array(bins.length - 1).fill(0);
+    geo.forEach(d => {
+        const idx = Math.min(Math.floor(d.rate * 10), bins.length - 2);
+        counts[idx]++;
+    });
+
+    new Chart(el, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: counts.map((_, i) => {
+                    const pct = (i + 0.5) / (counts.length);
+                    const r = Math.round(224 - pct * (224 - 46));
+                    const g = Math.round(123 - pct * (123 - 156));
+                    const b = Math.round(90  + pct * (202 - 90));
+                    return `rgba(${r},${g},${b},0.75)`;
+                }),
+                borderWidth: 0, borderRadius: 4,
+            }],
+        },
+        options: {
+            ...baseChartOptions({ title: { text: 'Offices' } }),
+            plugins: {
+                ...baseChartOptions().plugins,
+                tooltip: {
+                    ...baseChartOptions().plugins.tooltip,
+                    callbacks: {
+                        label: ctx => `${ctx.raw} offices in this range`,
+                    },
+                },
+            },
+            scales: {
+                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', maxRotation: 45 } },
+                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', stepSize: 1 },
+                     title: { display: true, text: 'Number of offices', color: '#7B82A8', font: { size: 10 } } },
+            },
+        },
+    });
+
+    // Top 5 and Bottom 5
+    const valid = geo.filter(d => d.total >= 100);
+    buildRankList('rankTop',    valid.slice(0, 5),  'teal');
+    buildRankList('rankBottom', valid.slice(-5).reverse(), 'coral');
+}
+
+function buildRankList(id, items, color) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = items.map((d, i) => `
+        <div class="rank-item">
+            <span class="rank-num">${i+1}</span>
+            <span class="rank-city" title="${d.city}">${d.city}</span>
+            <div class="rank-bar">
+                <div class="rank-bar-fill" style="width:${d.rate*100}%;background:var(--${color === 'teal' ? 'accent' : 'coral'})"></div>
+            </div>
+            <span class="rank-pct" style="color:var(--${color === 'teal' ? 'accent' : 'coral'})">${(d.rate*100).toFixed(0)}%</span>
+        </div>`).join('');
+}
+
+// ── 2. Trends chart ───────────────────────────────────────
+
+function buildTrendsChart(trends) {
+    const el = document.getElementById('chartTrends');
+    if (!el || !trends) return;
+
+    const years = trends.years.map(String);
+    const svRates = trends.SV.rates.map(r => r != null ? +(r * 100).toFixed(1) : null);
+    const toRates = trends.TO.rates.map(r => r != null ? +(r * 100).toFixed(1) : null);
+
+    new Chart(el, {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [
+                {
+                    label: 'Severe Thunderstorm',
+                    data: svRates,
+                    borderColor: '#2E9CCA',
+                    backgroundColor: 'rgba(46,156,202,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#2E9CCA',
+                    tension: 0.35,
+                    fill: true,
+                    spanGaps: true,
+                },
+                {
+                    label: 'Tornado',
+                    data: toRates,
+                    borderColor: '#E07B5A',
+                    backgroundColor: 'rgba(224,123,90,0.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#E07B5A',
+                    tension: 0.35,
+                    fill: true,
+                    spanGaps: true,
+                },
+            ],
+        },
+        options: {
+            ...baseChartOptions(),
+            plugins: {
+                ...baseChartOptions().plugins,
+                legend: { display: false },
+                tooltip: {
+                    ...baseChartOptions().plugins.tooltip,
+                    callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}%` },
+                },
+            },
+            scales: {
+                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' } },
+                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', callback: v => v + '%' },
+                     min: 0, max: 100 },
+            },
+        },
+    });
+}
+
+function buildTrendsCallouts(trends) {
+    if (!trends) return;
+    const sv = trends.SV.rates.filter(r => r != null);
+    const to = trends.TO.rates.filter(r => r != null);
+
+    const first = trends.SV.rates[0], last = sv[sv.length - 1];
+    const delta = ((last - first) * 100).toFixed(1);
+    const sign  = delta > 0 ? '+' : '';
+
+    const bestIdx = sv.indexOf(Math.max(...sv));
+    const bestYear = trends.years[trends.SV.rates.indexOf(Math.max(...sv))];
+    const toAvg = (to.reduce((a,b) => a+b, 0) / to.length * 100).toFixed(1);
+
+    const deltaEl = document.getElementById('trendSVDelta');
+    const bestEl  = document.getElementById('trendBestYear');
+    const toEl    = document.getElementById('trendTOAvg');
+    if (deltaEl) { deltaEl.textContent = `${sign}${delta}pp`; deltaEl.className = `trend-callout-val ${delta > 0 ? 'teal' : 'coral'}`; }
+    if (bestEl)  bestEl.textContent = String(bestYear);
+    if (toEl)    toEl.textContent   = toAvg + '%';
+}
+
+// ── 3. Lead time histogram ────────────────────────────────
+
+function buildLeadtimeChart(leadtime) {
+    const el = document.getElementById('chartLeadtime');
+    if (!el || !leadtime) return;
+
+    const bins = leadtime.bins;
+    const svPct = leadtime.SV.pct;
+    const toPct = leadtime.TO.pct;
+
+    new Chart(el, {
+        type: 'bar',
+        data: {
+            labels: bins,
+            datasets: [
+                { label: 'Severe Thunderstorm', data: svPct,
+                  backgroundColor: 'rgba(46,156,202,0.65)', borderWidth: 0, borderRadius: 3 },
+                { label: 'Tornado', data: toPct,
+                  backgroundColor: 'rgba(224,123,90,0.65)', borderWidth: 0, borderRadius: 3 },
+            ],
+        },
+        options: {
+            ...baseChartOptions(),
+            plugins: {
+                ...baseChartOptions().plugins,
+                legend: { display: false },
+                tooltip: {
+                    ...baseChartOptions().plugins.tooltip,
+                    callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}% of verified warnings` },
+                },
+            },
+            scales: {
+                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' } },
+                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', callback: v => v + '%' },
+                     title: { display: true, text: '% of verified warnings', color: '#7B82A8', font: { size: 10 } } },
+            },
+        },
+    });
+}
+
+// ── 4. Clustering cards ───────────────────────────────────
+
+function buildClusterCards(clustering) {
+    const el = document.getElementById('clusterOffices');
+    if (!el || !clustering) return;
+
+    const maxStreak = Math.max(...Object.values(clustering).map(c => c.max_streak));
+
+    el.innerHTML = Object.entries(clustering)
+        .sort((a,b) => b[1].max_streak - a[1].max_streak)
+        .map(([wfo, c]) => {
+            const farPct = ((c.false_total / c.total) * 100).toFixed(0);
+            const barW   = Math.round((c.max_streak / maxStreak) * 100);
+            const cityShort = c.city.split(',')[0];
+            return `
+            <div class="cluster-card">
+                <div class="cluster-city">${cityShort}</div>
+                <div class="cluster-wfo">${wfo}</div>
+                <div class="cluster-stat-row">
+                    <div class="cluster-stat">
+                        <span class="cluster-stat-label">Max streak</span>
+                        <span class="cluster-stat-val">${c.max_streak} false alarms</span>
+                    </div>
+                    <div class="cluster-stat">
+                        <span class="cluster-stat-label">Avg streak</span>
+                        <span class="cluster-stat-val">${c.avg_streak}</span>
+                    </div>
+                    <div class="cluster-stat">
+                        <span class="cluster-stat-label">Overall FAR</span>
+                        <span class="cluster-stat-val">${farPct}%</span>
+                    </div>
+                </div>
+                <div class="cluster-streak-bar">
+                    <div class="cluster-streak-fill" style="width:${barW}%"></div>
+                </div>
+            </div>`;
+        }).join('');
 }
