@@ -192,29 +192,27 @@
                 </div>
             </div>
 
-            <div class="geo-layout">
-                <!-- Distribution chart -->
-                <div class="geo-chart-wrap panel reveal">
-                    <div class="panel-header">
-                        <h3 class="panel-title">Distribution of Verification Rates</h3>
-                        <span class="panel-subtitle">117 NWS forecast offices</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="chartGeo"></canvas>
-                    </div>
-                    <p class="chart-note">Most offices verify 40–70% of warnings. A significant tail falls below 30%.</p>
+            <!-- Distribution chart — full width -->
+            <div class="panel reveal" style="margin-bottom:28px;">
+                <div class="panel-header">
+                    <h3 class="panel-title">Distribution of Verification Rates</h3>
+                    <span class="panel-subtitle">117 NWS forecast offices</span>
                 </div>
+                <div class="chart-container">
+                    <canvas id="chartGeo"></canvas>
+                </div>
+                <p class="chart-note">Most offices verify 40–70% of warnings. A significant tail falls below 30%.</p>
+            </div>
 
-                <!-- Top / Bottom offices -->
-                <div class="geo-ranks reveal d1">
-                    <div class="rank-group">
-                        <div class="rank-label teal">Most Reliable</div>
-                        <div class="rank-list" id="rankTop"></div>
-                    </div>
-                    <div class="rank-group">
-                        <div class="rank-label coral">Least Reliable</div>
-                        <div class="rank-list" id="rankBottom"></div>
-                    </div>
+            <!-- Top / Bottom offices — side by side below chart -->
+            <div class="geo-ranks-row reveal" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                <div class="rank-group">
+                    <div class="rank-label teal">Most Reliable</div>
+                    <div class="rank-list" id="rankTop"></div>
+                </div>
+                <div class="rank-group">
+                    <div class="rank-label coral">Least Reliable</div>
+                    <div class="rank-list" id="rankBottom"></div>
                 </div>
             </div>
         </div>
