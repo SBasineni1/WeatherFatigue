@@ -161,14 +161,14 @@ function updateMapAndStats() {
     for (const r of filtered.filter(r => !r.warned)) {
         L.circleMarker([r.lat0, r.lon0], {
             radius: 2.5, color: "transparent",
-            fillColor: "#ff6b6b", fillOpacity: 0.5, weight: 0,
+            fillColor: "#E07B5A", fillOpacity: 0.5, weight: 0,
         }).bindPopup(`<b>${r.typetext}</b><br>WFO: ${r.wfo} · ${r.state}<br>Warned: No`)
           .addTo(markerLayer);
     }
     for (const r of filtered.filter(r => r.warned)) {
         L.circleMarker([r.lat0, r.lon0], {
             radius: 2.5, color: "transparent",
-            fillColor: "#4ecdc4", fillOpacity: 0.5, weight: 0,
+            fillColor: "#2E9CCA", fillOpacity: 0.5, weight: 0,
         }).bindPopup(`<b>${r.typetext}</b><br>WFO: ${r.wfo} · ${r.state}<br>Warned: Yes`)
           .addTo(markerLayer);
     }
@@ -402,7 +402,7 @@ function renderHeatmap(wfo) {
     ctx.scale(dpr, dpr);
 
     // Background
-    ctx.fillStyle = "#0d0d22";
+    ctx.fillStyle = "#1D1F3E";
     ctx.fillRect(0, 0, W, H);
 
     // Month labels
@@ -452,17 +452,17 @@ function renderHeatmap(wfo) {
             const opacity = Math.min(1.0, 0.45 + Math.log(total + 1) / Math.log(30) * 0.55);
 
             if (v === 0) {
-                ctx.fillStyle = `rgba(255,107,107,${opacity})`;
+                ctx.fillStyle = `rgba(224,123,90,${opacity})`;
                 ctx.fillRect(x, yTop, HM.CELL_W, HM.CELL_H);
             } else if (u === 0) {
-                ctx.fillStyle = `rgba(78,205,196,${opacity})`;
+                ctx.fillStyle = `rgba(46,156,202,${opacity})`;
                 ctx.fillRect(x, yTop, HM.CELL_W, HM.CELL_H);
             } else {
                 const verH = Math.max(1, Math.round(HM.CELL_H * (v / total)));
                 const unvH = HM.CELL_H - verH;
-                ctx.fillStyle = `rgba(255,107,107,${opacity})`;
+                ctx.fillStyle = `rgba(224,123,90,${opacity})`;
                 ctx.fillRect(x, yTop, HM.CELL_W, unvH);
-                ctx.fillStyle = `rgba(78,205,196,${opacity})`;
+                ctx.fillStyle = `rgba(46,156,202,${opacity})`;
                 ctx.fillRect(x, yTop + unvH, HM.CELL_W, verH);
             }
         }

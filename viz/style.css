@@ -3,17 +3,17 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-    --bg-primary: #0a0a1a;
-    --bg-secondary: #111128;
-    --bg-card: rgba(25, 25, 55, 0.65);
-    --text-primary: #e8e8f0;
-    --text-secondary: #8888a8;
-    --accent: #4ecdc4;
-    --coral: #ff6b6b;
-    --gold: #ffd93d;
-    --border: rgba(255, 255, 255, 0.08);
-    --glass: rgba(255, 255, 255, 0.04);
-    --radius: 12px;
+    --bg-primary:   #25274D;
+    --bg-secondary: #1D1F3E;
+    --bg-card:      rgba(70, 72, 102, 0.55);
+    --text-primary: #C8D0E0;
+    --text-secondary: #7B82A8;
+    --accent:  #2E9CCA;
+    --coral:   #E07B5A;
+    --gold:    #F0C060;
+    --border:  rgba(170, 187, 200, 0.12);
+    --glass:   rgba(46, 156, 202, 0.06);
+    --radius:    12px;
     --radius-lg: 16px;
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -67,8 +67,8 @@ body {
     text-align: center;
     position: relative;
     background:
-        radial-gradient(ellipse at 25% 40%, rgba(78, 205, 196, 0.08) 0%, transparent 55%),
-        radial-gradient(ellipse at 75% 60%, rgba(255, 107, 107, 0.05) 0%, transparent 55%),
+        radial-gradient(ellipse at 25% 40%, rgba(46, 156, 202, 0.1) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 60%, rgba(41, 100, 138, 0.08) 0%, transparent 55%),
         var(--bg-primary);
 }
 
@@ -227,8 +227,8 @@ body {
     width: 8px; height: 8px;
     border-radius: 50%;
 }
-.dot.teal { background: var(--accent); }
-.dot.coral { background: var(--coral); }
+.dot.teal  { background: #2E9CCA; }
+.dot.coral { background: #E07B5A; }
 
 /* Chip toggles */
 .chip-toggle input { display: none; }
@@ -256,7 +256,7 @@ body {
     border-radius: var(--radius);
     overflow: hidden;
 }
-.leaflet-tile-pane { filter: brightness(0.85) saturate(0.9); }
+.leaflet-tile-pane { filter: brightness(0.75) saturate(0.7) hue-rotate(200deg); }
 .leaflet-container { background: var(--bg-primary); }
 
 /* ═══ SECTION 3 — Heatmap ══════════════════════════════════ */
@@ -492,8 +492,8 @@ body {
     border-radius: 2px;
     flex-shrink: 0;
 }
-.hm-leg-dot.verified   { background: #4ecdc4; }
-.hm-leg-dot.unverified { background: #ff6b6b; }
+.hm-leg-dot.verified   { background: #2E9CCA; }
+.hm-leg-dot.unverified { background: #E07B5A; }
 .hm-leg-dot.empty      { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); }
 
 /* ── Empty state ────────────────────────────────────────── */
