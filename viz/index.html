@@ -8,7 +8,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&family=Playfair+Display:wght@700;800&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -20,15 +20,19 @@
 
     <!-- ═══ SECTION 1: Intro / Hero ═══ -->
     <section class="section section-intro" id="intro">
-        <div class="container narrow">
-            <p class="eyebrow reveal">WeatherFatigue Project</p>
-            <h1 class="reveal d1">Are Storm Warnings<br><span class="accent">Actually Verified?</span></h1>
-            <p class="subtitle reveal d2">Exploring how often severe weather warnings across the United States are confirmed by actual storm reports — and what that means for public trust.</p>
-            <div class="divider reveal d3"></div>
-            <div class="intro-body reveal d4">
-                <p>Every year, the National Weather Service issues thousands of severe thunderstorm and tornado warnings. But how many of those warnings are actually confirmed by real-world storm reports?</p>
-                <p>This project analyzes over 14,000 warnings and 600,000 storm reports from 2008 to 2025, examining false alarm rates, lead times, geographic variation, and long-term trends.</p>
-                <p>Scroll down to explore the data yourself.</p>
+        <div class="container editorial-col">
+            <p class="editorial-eyebrow reveal">WEATHER DATA &nbsp;·&nbsp; 2008–2025</p>
+            <h1 class="editorial-headline reveal d1">Are Storm Warnings<br>Actually Verified?</h1>
+            <p class="editorial-deck reveal d2">Analyzing 14,982 NWS warnings to measure false alarm rates, lead times, and the geographic variation that shapes public trust in severe weather alerts.</p>
+            <div class="editorial-meta reveal d3">
+                <p class="editorial-byline">By the WeatherFatigue Project</p>
+                <p class="editorial-source">Data: Iowa Environmental Mesonet COW &nbsp;·&nbsp; 8 NWS Forecast Offices &nbsp;·&nbsp; 18 Years</p>
+            </div>
+            <div class="editorial-rule reveal d4"></div>
+            <div class="editorial-body reveal d5">
+                <p>Heart disease and tornado warnings have something in common: everyone knows they're dangerous in the abstract, but most people don't take them personally until the experience becomes real. The National Weather Service issues thousands of severe thunderstorm and tornado warnings every year across the United States — but how many of them actually precede a storm?</p>
+                <p>The answer, it turns out, varies dramatically depending on where you live, what type of warning was issued, and what year you're asking about. This project analyzes warning verification records from 2008 to 2025, examining false alarm rates, lead times, and long-term trends in NWS accuracy.</p>
+                <p>Scroll down to explore the data.</p>
             </div>
             <div class="scroll-hint reveal d5"><span>↓</span></div>
         </div>
@@ -346,14 +350,15 @@
 
     <!-- ═══ SECTION 9: Closing ═══ -->
     <section class="section section-closing" id="closing">
-        <div class="container narrow">
-            <h2 class="section-title reveal">Warning Fatigue<br>Is <span class="accent">Real</span></h2>
-            <div class="closing-body reveal">
-                <p>The data reveals a structural tension in weather warning systems: issuing warnings early enough to be useful means accepting a high false alarm rate. For tornado warnings, 3 in 4 go unverified — not because forecasters are failing, but because the atmosphere is hard to predict.</p>
-                <p>The consequence is cumulative. Repeated unverified warnings — especially when they cluster in consecutive streaks — erode the trust that makes warnings life-saving. People in high-FAR areas become desensitized, slowing their response when a real event arrives.</p>
-                <p>Understanding these patterns is the first step. Better communication about why false alarms happen, and how to interpret warnings probabilistically, may be more effective than simply trying to raise accuracy rates.</p>
+        <div class="container editorial-col">
+            <div class="editorial-rule reveal"></div>
+            <h2 class="editorial-headline editorial-headline--sm reveal">Warning Fatigue Is Real</h2>
+            <div class="editorial-body reveal">
+                <p>The data reveals a structural tension in weather warning systems: issuing warnings early enough to be useful means accepting a high false alarm rate. For tornado warnings, 3 in 4 go unverified — not because forecasters are failing, but because the atmosphere is hard to predict. The NWS explicitly trades precision for lead time, accepting false alarms as the cost of giving people those critical extra minutes.</p>
+                <p>The consequence is cumulative. Repeated unverified warnings — especially when they cluster in consecutive streaks of 10 or more, as we see in Oklahoma City and Wichita — erode the trust that makes warnings effective. Research on the "cry wolf" effect shows that behavioral compliance drops sharply after experiencing multiple false alarms in a row.</p>
+                <p>Understanding these patterns is the first step. Better public communication about why false alarms happen — framing warnings probabilistically rather than as binary predictions — may do more to preserve life-saving trust than simply trying to raise accuracy rates.</p>
             </div>
-            <div class="divider reveal"></div>
+            <p class="editorial-source reveal">Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank">Iowa Environmental Mesonet COW</a> &nbsp;·&nbsp; WeatherFatigue Project</p>
         </div>
     </section>
 
