@@ -74,7 +74,7 @@ body {
     position: relative;
     background: var(--bg-primary);
     padding-top: 60px;
-    padding-bottom: 32px;
+    padding-bottom: 0;
 }
 
 /* Category · date eyebrow */
@@ -121,7 +121,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-bottom: 32px;
+    margin-bottom: 0;
 }
 .editorial-byline {
     font-family: 'Inter', sans-serif;
@@ -162,7 +162,7 @@ body {
 /* Narrative section */
 .section-narrative {
     background: var(--bg-primary);
-    padding: 32px 0 56px;
+    padding: 0 0 56px;
 }
 
 /* Pull quote / blockquote */
