@@ -39,7 +39,7 @@ body {
 }
 
 .section {
-    padding: 100px 0;
+    padding: 56px 0;
 }
 
 /* ═══ Scroll Reveal ════════════════════════════════════════ */
@@ -73,8 +73,8 @@ body {
     justify-content: center;
     position: relative;
     background: var(--bg-primary);
-    padding-top: 80px;
-    padding-bottom: 60px;
+    padding-top: 60px;
+    padding-bottom: 32px;
 }
 
 /* Category · date eyebrow */
@@ -162,7 +162,7 @@ body {
 /* Narrative section */
 .section-narrative {
     background: var(--bg-primary);
-    padding: 80px 0 90px;
+    padding: 32px 0 56px;
 }
 
 /* Pull quote / blockquote */
@@ -192,7 +192,7 @@ body {
 .section-closing {
     background: var(--bg-secondary);
     border-top: 1px solid var(--border);
-    padding: 100px 0;
+    padding: 56px 0;
 }
 .section-closing .editorial-eyebrow { color: var(--text-secondary); }
 .section-closing .editorial-headline { color: var(--text-primary); }
@@ -231,7 +231,7 @@ body {
 /* ═══ SECTION 2 — Map ══════════════════════════════════════ */
 .section-dashboard {
     background: var(--bg-primary);
-    padding: 80px 0 100px;
+    padding: 56px 0;
 }
 
 .section-title {
@@ -365,7 +365,7 @@ body {
 /* ═══ SECTION 3 — Heatmap ══════════════════════════════════ */
 .section-heatmap {
     background: var(--bg-primary);
-    padding: 80px 0 100px;
+    padding: 56px 0;
 }
 
 .heatmap-intro {
@@ -756,7 +756,7 @@ body {
 
 /* ═══ Responsive ═══════════════════════════════════════════ */
 @media (max-width: 640px) {
-    .section { padding: 60px 0; }
+    .section { padding: 36px 0; }
     .stats-strip { gap: 8px; }
     .stat-pill { min-width: 90px; padding: 10px 14px; }
     .pill-val { font-size: 1.1rem; }
