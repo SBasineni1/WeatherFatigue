@@ -65,67 +65,75 @@
     </section>
 
     <!-- ═══ SECTION 2: Accuracy by Warning Type ═══ -->
-    <section class=”section section-accuracy” id=”accuracy”>
-        <div class=”container”>
-            <div class=”editorial-col acc-col-head”>
-                <p class=”eyebrow reveal”>The Core Question</p>
-                <h2 class=”section-title reveal”>When a Warning Goes Out,<br>What Actually Happens?</h2>
-                <div class=”editorial-body reveal acc-intro-body”>
-                    <p>To get a rough geographic scope of the United States, we inspected the data of the following cities: Albany, NY; Binghamton, NY; Boston, MA; Buffalo, NY; Columbia, SC; Wichita, KS; and Oklahoma City, OK. A warning is considered verified when a storm report is inside the warning polygon and occurs before the warning expires.</p>
+    <section class="section section-accuracy" id="accuracy">
+        <div class="container">
+            <div class="editorial-col" style="padding:0;">
+                <p class="eyebrow reveal">The Core Question</p>
+                <h2 class="section-title reveal">When a Warning Goes Out,<br>What Actually Happens?</h2>
+                <div class="editorial-body reveal acc-intro-body">
+                    <p>To get a rough geographic scope of the United States, we inspected the data of the following cities: Albany, NY; Binghamton, NY; Boston, MA; Buffalo, NY; Columbia, SC; Wichita, KS; and Oklahoma City, OK. A warning is considered verified when a storm report is inside the warning polygon and occurs before the warning expires. </p>
                 </div>
-            </div>
 
-            <div class=”editorial-col”>
-                <div class=”icon-array-wrap reveal” id=”iconArrayWrap”>
-                    <div class=”ia-half”>
-                        <div class=”ia-header”>
-                            <div class=”acc-icon sv-icon”>
-                                <svg width=”18” height=”18” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2”><path d=”M13 2L3 14h9l-1 8 10-12h-9l1-8z”/></svg>
-                            </div>
-                            <div class=”ia-meta”>
-                                <span class=”ia-type-label”>Severe Thunderstorm</span>
-                                <div class=”ia-pct-row”>
-                                    <span class=”ia-pct teal”>62.5%</span>
-                                    <span class=”ia-pct-sub”>verified</span>
-                                </div>
-                            </div>
+            <div class="icon-array-wrap reveal" id="iconArrayWrap">
+                <!-- Severe Thunderstorm half -->
+                <div class="ia-half">
+                    <div class="ia-header">
+                        <div class="acc-icon sv-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                         </div>
-                        <div class=”ia-grid” id=”iaSvGrid”></div>
-                        <div class=”ia-breakdown”>
-                            <span><span class=”acc-num teal”>9,003</span> verified</span>
-                            <span><span class=”acc-num coral”>5,059</span> false alarms</span>
+                        <div class="ia-meta">
+                            <span class="ia-type-label">Severe Thunderstorm</span>
+                            <div class="ia-pct-row">
+                                <span class="ia-pct teal">62.5%</span>
+                                <span class="ia-pct-sub">verified</span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class=”ia-sep”></div>
-
-                    <div class=”ia-half”>
-                        <div class=”ia-header”>
-                            <div class=”acc-icon to-icon”>
-                                <svg width=”18” height=”18” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”2”><path d=”M21 4H3m14 4H7m12 4H9m8 4h-6m4 4h-2”/></svg>
-                            </div>
-                            <div class=”ia-meta”>
-                                <span class=”ia-type-label”>Tornado</span>
-                                <div class=”ia-pct-row”>
-                                    <span class=”ia-pct coral”>24.9%</span>
-                                    <span class=”ia-pct-sub”>verified</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class=”ia-grid” id=”iaToGrid”></div>
-                        <div class=”ia-breakdown”>
-                            <span><span class=”acc-num teal”>229</span> verified</span>
-                            <span><span class=”acc-num coral”>691</span> false alarms</span>
-                        </div>
+                    <div class="ia-grid" id="iaSvGrid"></div>
+                    <div class="ia-breakdown">
+                        <span><span class="acc-num teal">9,003</span> verified</span>
+                        <span><span class="acc-num coral">5,059</span> false alarms</span>
                     </div>
                 </div>
-                <p class=”chart-note reveal”>&#9632; Verified &nbsp;&nbsp;&#9632; False alarm &nbsp;&middot;&nbsp; Each square = 1% of warnings issued</p>
+
+                <div class="ia-sep"></div>
+
+                <!-- Tornado half -->
+                <div class="ia-half">
+                    <div class="ia-header">
+                        <div class="acc-icon to-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3m14 4H7m12 4H9m8 4h-6m4 4h-2"/></svg>
+                        </div>
+                        <div class="ia-meta">
+                            <span class="ia-type-label">Tornado</span>
+                            <div class="ia-pct-row">
+                                <span class="ia-pct coral">24.9%</span>
+                                <span class="ia-pct-sub">verified</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ia-grid" id="iaToGrid"></div>
+                    <div class="ia-breakdown">
+                        <span><span class="acc-num teal">229</span> verified</span>
+                        <span><span class="acc-num coral">691</span> false alarms</span>
+                    </div>
+                </div>
+            </div>
+            <div class=”ia-legend reveal”>
+                <span class=”ia-leg-item”>
+                    <svg width=”11” height=”11” viewBox=”0 0 11 11”><rect width=”11” height=”11” rx=”2” fill=”#2E9CCA”/></svg>
+                    Verified warning
+                </span>
+                <span class=”ia-leg-item”>
+                    <svg width=”11” height=”11” viewBox=”0 0 11 11”><rect width=”11” height=”11” rx=”2” fill=”#E07B5A” opacity=”0.45”/></svg>
+                    False alarm
+                </span>
+                <span class=”ia-leg-note”>Each square = 1% of warnings issued</span>
             </div>
 
-            <div class=”editorial-col acc-col-after”>
-                <div class=”editorial-body reveal”>
-                    <p>The graphic shows a significantly higher severe thunderstorm verification rate compared to tornadoes, which can be tied to easier storm detection for severe thunderstorms than tornadoes. But what’s more shocking is the fact that only one out of every four tornado warnings is verified. This extremely low verification rate of tornadoes is a byproduct of the National Weather Service (NWS) “erring on the side of caution”, but this is a clear indicator as to why areas often disregard tornado warnings. What’s the point in preparing for a possible tornado if, overwhelmingly, the warnings are fake?</p>
-                </div>
+            <div class=”editorial-body reveal acc-outro-body”>
+                <p>The graphic shows a significantly higher severe thunderstorm verification rate compared to tornadoes, which can be tied to easier storm detection for severe thunderstorms than tornadoes. But what’s more shocking is the fact that only one out of every four tornado warnings is verified. This extremely low verification rate of tornadoes is a byproduct of the National Weather Service (NWS) “erring on the side of caution”, but this is a clear indicator as to why areas often disregard tornado warnings. What’s the point in preparing for a possible tornado if, overwhelmingly, the warnings are fake?</p>
+            </div>
             </div>
         </div>
     </section>
@@ -167,7 +175,7 @@
                 <p class="eyebrow reveal">Geographic Variation</p>
                 <h2 class="section-title reveal">Accuracy Varies Dramatically<br>by Location</h2>
                 <div class="editorial-body reveal" style="margin-top:16px;">
-                    <p>Verification rates over WFOs vary greatly. Factors like population density, meteorologist staffing, radar availability, and storm frequency all play a role. WFO verification rates range from less than 10% to over 70%.</p>
+                    <p>Leading into the accuracy by forecast office and location, we can see that the verification rates range from less than 10% to over 70%.</p>
                 </div>
             </div>
 
