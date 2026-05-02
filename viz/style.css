@@ -767,6 +767,16 @@ body {
     opacity: 0.5;
     margin-left: auto;
 }
+.ia-caption {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.67rem;
+    color: var(--text-secondary);
+    opacity: 0.55;
+    text-align: center;
+    letter-spacing: 0.3px;
+    margin-top: 6px;
+    margin-bottom: 0;
+}
 .acc-outro-body { margin-top: 28px; }
 
 /* — Fixed Scroll Indicator — */
