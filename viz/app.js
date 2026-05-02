@@ -608,7 +608,7 @@ async function initAnalytics() {
     buildGeoChart(analytics.geo);
     buildTrendsChart(analytics.trends);
     buildLeadtimeChart(analytics.leadtime);
-    buildClusterCards(analytics.clustering);
+    buildClusterScatter(analytics.clustering);
     buildTrendsCallouts(analytics.trends);
 }
 
@@ -828,39 +828,119 @@ function buildLeadtimeChart(leadtime) {
 
 // ── 4. Clustering cards ───────────────────────────────────
 
-function buildClusterCards(clustering) {
+function buildClusterScatter(clustering) {
     const el = document.getElementById('clusterOffices');
     if (!el || !clustering) return;
 
-    const maxStreak = Math.max(...Object.values(clustering).map(c => c.max_streak));
+    el.innerHTML = `
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">False Alarm Rate vs. Max Consecutive Streak</h3>
+                <div class="panel-right">
+                    <span class="legend-item"><span class="dot coral"></span> High streak (≥14)</span>
+                    <span class="legend-item"><span class="dot teal"></span> Lower streak</span>
+                    <span class="panel-subtitle" style="margin-left:8px;">Bubble size = avg streak length</span>
+                </div>
+            </div>
+            <div class="chart-container" style="height:380px;">
+                <canvas id="chartCluster"></canvas>
+            </div>
+        </div>`;
 
-    el.innerHTML = Object.entries(clustering)
-        .sort((a,b) => b[1].max_streak - a[1].max_streak)
-        .map(([wfo, c]) => {
-            const farPct = ((c.false_total / c.total) * 100).toFixed(0);
-            const barW   = Math.round((c.max_streak / maxStreak) * 100);
-            const cityShort = c.city.split(',')[0];
-            return `
-            <div class="cluster-card">
-                <div class="cluster-city">${cityShort}</div>
-                <div class="cluster-wfo">${wfo}</div>
-                <div class="cluster-stat-row">
-                    <div class="cluster-stat">
-                        <span class="cluster-stat-label">Max streak</span>
-                        <span class="cluster-stat-val">${c.max_streak} false alarms</span>
-                    </div>
-                    <div class="cluster-stat">
-                        <span class="cluster-stat-label">Avg streak</span>
-                        <span class="cluster-stat-val">${c.avg_streak}</span>
-                    </div>
-                    <div class="cluster-stat">
-                        <span class="cluster-stat-label">Overall FAR</span>
-                        <span class="cluster-stat-val">${farPct}%</span>
-                    </div>
-                </div>
-                <div class="cluster-streak-bar">
-                    <div class="cluster-streak-fill" style="width:${barW}%"></div>
-                </div>
-            </div>`;
-        }).join('');
+    const points = Object.entries(clustering).map(([wfo, c]) => {
+        const far = (c.false_total / c.total) * 100;
+        return {
+            x: far,
+            y: c.max_streak,
+            r: 5 + (c.avg_streak - 1.5) * 9,
+            wfo,
+            city: c.city.split(',')[0],
+            avg_streak: c.avg_streak,
+            far: far.toFixed(1)
+        };
+    });
+
+    const isHigh = p => p.y >= 14;
+    const colors  = points.map(p => isHigh(p) ? 'rgba(224,123,90,0.82)' : 'rgba(46,156,202,0.72)');
+    const borders = points.map(p => isHigh(p) ? '#E07B5A' : '#2E9CCA');
+
+    const labelPlugin = {
+        id: 'bubbleLabels',
+        afterDatasetsDraw(chart) {
+            const ctx = chart.ctx;
+            chart.data.datasets[0].data.forEach((pt, i) => {
+                const elem = chart.getDatasetMeta(0).data[i];
+                if (!elem) return;
+                const { x, y } = elem.getProps(['x', 'y'], true);
+                const radius = elem.options.radius || pt.r;
+                ctx.save();
+                ctx.font = "600 9px 'Inter', sans-serif";
+                ctx.fillStyle = isHigh(pt) ? '#F0A080' : '#7DCCE8';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(pt.wfo, x, y - radius - 4);
+                ctx.restore();
+            });
+        }
+    };
+
+    new Chart(document.getElementById('chartCluster'), {
+        type: 'bubble',
+        data: {
+            datasets: [{
+                data: points,
+                backgroundColor: colors,
+                borderColor: borders,
+                borderWidth: 1.5
+            }]
+        },
+        plugins: [labelPlugin],
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label(ctx) {
+                            const d = ctx.raw;
+                            return [
+                                `${d.city} (${d.wfo})`,
+                                `FAR: ${d.far}%`,
+                                `Max streak: ${d.y} in a row`,
+                                `Avg streak: ${d.avg_streak}`
+                            ];
+                        },
+                        title: () => ''
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'False Alarm Rate (%)',
+                        color: '#AAABB8',
+                        font: { size: 11, family: "'Inter', sans-serif" }
+                    },
+                    min: 25, max: 75,
+                    ticks: { color: '#AAABB8', callback: v => v + '%' },
+                    grid: { color: 'rgba(170,171,184,0.08)' },
+                    border: { color: 'rgba(170,171,184,0.15)' }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Max consecutive false alarms',
+                        color: '#AAABB8',
+                        font: { size: 11, family: "'Inter', sans-serif" }
+                    },
+                    min: 6, max: 20,
+                    ticks: { color: '#AAABB8', stepSize: 2 },
+                    grid: { color: 'rgba(170,171,184,0.08)' },
+                    border: { color: 'rgba(170,171,184,0.15)' }
+                }
+            }
+        }
+    });
 }
