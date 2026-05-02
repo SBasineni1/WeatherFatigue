@@ -186,7 +186,7 @@ body {
     font-style: normal;
 }
 .fn-wrap {
-    overflow: visible;
+    position: relative;
 }
 .fn-ref {
     font-size: 0.6em;
@@ -195,10 +195,10 @@ body {
     color: var(--accent);
 }
 .fn-aside {
-    float: right;
-    clear: right;
+    position: absolute;
+    right: -185px;
+    bottom: 0;
     width: 160px;
-    margin-right: -190px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -215,7 +215,7 @@ body {
 .fn-url {
     word-break: break-all;
 }
-@media (max-width: 1000px) {
+@media (max-width: 960px) {
     .fn-aside { display: none; }
 }
 
