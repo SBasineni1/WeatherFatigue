@@ -78,6 +78,7 @@ const WFO_NAMES = {
 
 document.addEventListener("DOMContentLoaded", async () => {
     setupScrollReveal();
+    initIconArray();
     await loadData();
     setupFilterToggles();
     initMap();
@@ -85,6 +86,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     initHeatmap();
     initAnalytics();
 });
+
+// ══════════════════════════════════════════════════════════
+// Icon Array (Accuracy Section)
+// ══════════════════════════════════════════════════════════
+
+function initIconArray() {
+    const configs = [
+        { id: 'iaSvGrid', verified: 63 },   // 62.5% → 63 cells
+        { id: 'iaToGrid', verified: 25 },   // 24.9% → 25 cells
+    ];
+
+    configs.forEach(({ id, verified }) => {
+        const grid = document.getElementById(id);
+        if (!grid) return;
+        for (let i = 0; i < 100; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'ia-cell ' + (i < verified ? 'ia-verified' : 'ia-false');
+            cell.style.animationDelay = (i * 9) + 'ms';
+            grid.appendChild(cell);
+        }
+    });
+
+    const wrap = document.getElementById('iconArrayWrap');
+    if (!wrap) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.querySelectorAll('.ia-grid').forEach(g => g.classList.add('ia-animated'));
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    observer.observe(wrap);
+}
 
 // ══════════════════════════════════════════════════════════
 // Scroll Reveal

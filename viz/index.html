@@ -40,7 +40,7 @@
             </blockquote>
 
             <div class="editorial-body reveal">
-                <p><strong>May 21, 2011</strong> — A cluster of storms are heading eastward. Meteorologists from the National Weather Service issue a tornado warning: “AT 514 PM CDT...NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A TORNADO NEAR RIVERTON...OR 4 MILES NORTH OF BAXTER SPRINGS...MOVING NORTHEAST AT 40 MPH.” Two convective cells merge with the parent storm. Intense rotation develops, and a “catastrophic” tornado forms. An EF5 tornado, with over 200+ MPH winds, the most severe on the National Weather Service’s Enhanced Fujita scale. </p>
+                <p><strong>May 22, 2011</strong> — A cluster of storms are heading eastward. Meteorologists from the National Weather Service issue a tornado warning: “AT 514 PM CDT...NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A TORNADO NEAR RIVERTON...OR 4 MILES NORTH OF BAXTER SPRINGS...MOVING NORTHEAST AT 40 MPH.” Two convective cells merge with the parent storm. Intense rotation develops, and a “catastrophic” tornado forms. An EF5 tornado, with over 200+ MPH winds, the most severe on the National Weather Service’s Enhanced Fujita scale. </p>
 
                 <p>The Joplin Tornado on May 22, 2011, would become the nation’s deadliest tornado in 60 years. It caused $4 billion in damage to Joplin’s infrastructure. It claimed the lives of 158 residents and injured over 1000 others. The 32 minutes of the tornado’s lifespan were horrific: employees of Joplin’s Pizza Hut watched their store manager get sucked out of the walk-in freezer in which they were sheltering. A nursing home was leveled, with 21 fatalities. Five patients at a local medical center died when power outages deactivated their ventilators. Was this avoidable, or was it an impending catastrophe that was going to happen regardless?</p>
 
@@ -71,55 +71,66 @@
                 <p class="eyebrow reveal">The Core Question</p>
                 <h2 class="section-title reveal">When a Warning Goes Out,<br>What Actually Happens?</h2>
                 <div class="editorial-body reveal" style="margin-top:16px;">
-                    <p>As an initial visualization, we took the cities Albany, NY, Binghamton, NY, Boston, MA, Buffalo, NY, Columbia, SC, Wichita, KS, and Oklahoma City to get a rough geographic scope of the United States. A warning is considered verified when a storm report is inside the warning polygon and occurs before the warning expires.</p>
+                    <p>To get a rough geographic scope of the United States, we inspected the data of the following cities: Albany, NY; Binghamton, NY; Boston, MA; Buffalo, NY; Columbia, SC; Wichita, KS; and Oklahoma City, OK. A warning is considered verified when a storm report is inside the warning polygon and occurs before the warning expires. </p>
                 </div>
             </div>
 
-            <div class="acc-cards">
-                <!-- Severe Thunderstorm -->
-                <div class="acc-card reveal">
-                    <div class="acc-header">
+            <div class="icon-array-wrap reveal" id="iconArrayWrap">
+                <!-- Severe Thunderstorm half -->
+                <div class="ia-half">
+                    <div class="ia-header">
                         <div class="acc-icon sv-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                         </div>
-                        <span class="acc-type-label">Severe Thunderstorm</span>
+                        <div class="ia-meta">
+                            <span class="ia-type-label">Severe Thunderstorm</span>
+                            <div class="ia-pct-row">
+                                <span class="ia-pct teal">62.5%</span>
+                                <span class="ia-pct-sub">verified</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="acc-pct teal">62.5%</div>
-                    <div class="acc-pct-label">verified by a storm report</div>
-                    <div class="acc-bar-track">
-                        <div class="acc-bar-fill teal" style="width:62.5%"></div>
-                    </div>
-                    <div class="acc-breakdown">
+                    <div class="ia-grid" id="iaSvGrid"></div>
+                    <div class="ia-breakdown">
                         <span><span class="acc-num teal">9,003</span> verified</span>
                         <span><span class="acc-num coral">5,059</span> false alarms</span>
-                        <span>of 14,062 total</span>
+                        <span class="ia-total">of 14,062 total</span>
                     </div>
                 </div>
 
-                <!-- Tornado -->
-                <div class="acc-card reveal d1">
-                    <div class="acc-header">
+                <div class="ia-sep"></div>
+
+                <!-- Tornado half -->
+                <div class="ia-half">
+                    <div class="ia-header">
                         <div class="acc-icon to-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3m14 4H7m12 4H9m8 4h-6m4 4h-2"/></svg>
                         </div>
-                        <span class="acc-type-label">Tornado</span>
+                        <div class="ia-meta">
+                            <span class="ia-type-label">Tornado</span>
+                            <div class="ia-pct-row">
+                                <span class="ia-pct coral">24.9%</span>
+                                <span class="ia-pct-sub">verified</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="acc-pct coral">24.9%</div>
-                    <div class="acc-pct-label">verified by a storm report</div>
-                    <div class="acc-bar-track">
-                        <div class="acc-bar-fill coral" style="width:24.9%"></div>
-                    </div>
-                    <div class="acc-breakdown">
+                    <div class="ia-grid" id="iaToGrid"></div>
+                    <div class="ia-breakdown">
                         <span><span class="acc-num teal">229</span> verified</span>
                         <span><span class="acc-num coral">691</span> false alarms</span>
-                        <span>of 920 total</span>
+                        <span class="ia-total">of 920 total</span>
                     </div>
                 </div>
+            </div>
+            <div class="ia-legend reveal">
+                <span class="ia-leg-item"><span class="ia-leg-dot teal"></span>Verified warning</span>
+                <span class="ia-leg-item"><span class="ia-leg-dot coral"></span>False alarm</span>
+                <span class="ia-leg-note">Each square = 1% of warnings issued</span>
             </div>
 
             <div class="editorial-col" style="padding:0; margin: 28px auto;">
                 <div class="editorial-body reveal">
-                    <p>As seen from the graphics, there is a significantly higher severe thunderstorm verification rate compared to tornadoes. This can be attributed to a higher number of severe thunderstorms and an easier detection system through radar. Tornadoes are usually identified by "velocity" cuplets (tight rotation detected by radar), which prompts the National Weather Service (NWS) to issue a warning. Though a one-fourth verification rate is a byproduct of the NWS being "safer than sorry," but it is a real indicator of why areas may disregard tornado warnings.</p>
+                    <p>The graphic shows a significantly higher severe thunderstorm verification rate compared to tornadoes, which can be tied to easier storm detection for severe thunderstorms than tornadoes. But what’s more shocking is the fact that only one out of every four tornado warnings is verified. This extremely low verification rate of tornadoes is a byproduct of the National Weather Service (NWS) “erring on the side of caution”, but this is a clear indicator as to why areas often disregard tornado warnings. What’s the point in preparing for a possible tornado if, overwhelmingly, the warnings are fake? </p>
                 </div>
             </div>
 
