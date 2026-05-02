@@ -151,6 +151,9 @@ body {
 }
 
 /* Body prose */
+.editorial-body {
+    font-family: Georgia, 'Times New Roman', serif;
+}
 .editorial-body p {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 1.02rem;
