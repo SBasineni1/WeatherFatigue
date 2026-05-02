@@ -185,38 +185,10 @@ body {
     color: var(--text-secondary);
     font-style: normal;
 }
-.fn-wrap {
-    position: relative;
-}
-.fn-ref {
-    font-size: 0.6em;
-    vertical-align: super;
-    line-height: 0;
-    color: var(--accent);
-}
-.fn-aside {
-    position: absolute;
-    right: -185px;
-    bottom: 0;
-    width: 160px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.62rem;
+.editorial-quote cite a {
     color: var(--text-secondary);
-    line-height: 1.5;
-    opacity: 0.8;
-}
-.fn-num {
-    font-weight: 700;
-    font-size: 0.75rem;
-}
-.fn-url {
-    word-break: break-all;
-}
-@media (max-width: 960px) {
-    .fn-aside { display: none; }
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 .editorial-dropcap-p { }
