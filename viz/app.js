@@ -842,7 +842,7 @@ function buildClusterScatter(clustering) {
                     <span class="panel-subtitle" style="margin-left:8px;">Bubble size = avg streak length</span>
                 </div>
             </div>
-            <div class="chart-container" style="height:380px;">
+            <div class="chart-container" style="height:480px;">
                 <canvas id="chartCluster"></canvas>
             </div>
         </div>`;
