@@ -656,6 +656,8 @@ body {
 
 /* — Accuracy — */
 .section-accuracy { background: var(--bg-primary); }
+.acc-intro-body { margin-top: 16px; margin-bottom: 36px; }
+.acc-outro-body { margin-top: 28px; }
 .acc-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
 @media (max-width: 700px) { .acc-cards { grid-template-columns: 1fr; } }
 .acc-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px;  }
@@ -750,7 +752,7 @@ body {
     padding: 0 2px;
 }
 .ia-leg-item { display: flex; align-items: center; gap: 6px; font-size: 0.73rem; color: var(--text-secondary); }
-.ia-leg-dot { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+.ia-leg-dot { display: inline-block; width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
 .ia-leg-dot.teal  { background: var(--accent); }
 .ia-leg-dot.coral { background: var(--coral); opacity: 0.35; }
 .ia-leg-note { font-size: 0.68rem; color: var(--text-secondary); opacity: 0.55; margin-left: auto; }
