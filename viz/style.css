@@ -185,11 +185,6 @@ body {
     color: var(--text-secondary);
     font-style: normal;
 }
-.editorial-quote cite a {
-    color: var(--text-secondary);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-}
 
 .editorial-dropcap-p { }
 
