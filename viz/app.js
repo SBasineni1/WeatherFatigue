@@ -79,6 +79,7 @@ const WFO_NAMES = {
 document.addEventListener("DOMContentLoaded", async () => {
     setupScrollReveal();
     initIconArray();
+    initScrollIndicator();
     await loadData();
     setupFilterToggles();
     initMap();
@@ -86,6 +87,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     initHeatmap();
     initAnalytics();
 });
+
+// ══════════════════════════════════════════════════════════
+// Fixed Scroll Indicator
+// ══════════════════════════════════════════════════════════
+
+function initScrollIndicator() {
+    const el = document.getElementById('scrollIndicator');
+    if (!el) return;
+    window.addEventListener('scroll', () => {
+        const nearBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - 80;
+        el.classList.toggle('hidden', nearBottom);
+    }, { passive: true });
+}
 
 // ══════════════════════════════════════════════════════════
 // Icon Array (Accuracy Section)

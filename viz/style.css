@@ -755,34 +755,30 @@ body {
 .ia-leg-dot.coral { background: var(--coral); opacity: 0.35; }
 .ia-leg-note { font-size: 0.68rem; color: var(--text-secondary); opacity: 0.55; margin-left: auto; }
 
-/* — Scroll Arrow — */
-.scroll-arrow {
-    margin-top: 48px;
+/* — Fixed Scroll Indicator — */
+.scroll-indicator {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    align-items: center;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
 }
-.scroll-arrow-label {
-    font-family: 'Source Code Pro', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    opacity: 0.6;
-}
-.scroll-arrow-chevron {
+.scroll-indicator.hidden { opacity: 0; }
+.scroll-indicator-chevrons {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 2px;
-    animation: arrowBob 1.8s ease-in-out infinite;
+    animation: scrollBob 1.8s ease-in-out infinite;
 }
-.scroll-arrow-chevron svg {
-    color: var(--accent);
-    opacity: 0.7;
-}
-.scroll-arrow-chevron svg:last-child { opacity: 0.35; }
-@keyframes arrowBob {
+.scroll-indicator-chevrons svg { color: var(--accent); }
+.scroll-indicator-chevrons svg:last-child { opacity: 0.35; }
+@keyframes scrollBob {
     0%, 100% { transform: translateY(0); }
     50%       { transform: translateY(6px); }
 }
