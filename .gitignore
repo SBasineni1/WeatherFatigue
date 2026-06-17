@@ -1,2 +1,11 @@
 __pycache__/
 *.pyc
+
+# OS / editor
+.DS_Store
+
+# local agent/tooling artifacts
+.claude/
+CLAUDE.md
+.cursor/
+.windsurf/
