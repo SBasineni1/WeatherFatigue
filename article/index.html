@@ -8,10 +8,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/topojson-client.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
@@ -29,7 +30,7 @@
         <div class="hero-bg" id="heroBg" aria-hidden="true"></div>
         <div class="hero-scrim" aria-hidden="true"></div>
         <div class="hero-inner">
-            <p class="kicker reveal">Environment &nbsp;·&nbsp; A WeatherFatigue Investigation</p>
+            <p class="kicker reveal">Environment &nbsp;·&nbsp; Cornell Data Journal</p>
             <h1 class="hero-title reveal d1">Measuring<br><span class="hero-title-em">Weather&nbsp;Fatigue</span></h1>
             <p class="hero-deck reveal d2">Have you ever grown tired of weather warnings? Why does it seem like they never come true?</p>
             <div class="hero-meta reveal d3">
@@ -37,7 +38,9 @@
                 <p class="byline byline--muted">Edited by Jenny Williams, Nikhil Chinchalkar &nbsp;·&nbsp; April 12, 2026</p>
             </div>
         </div>
-        <div class="hero-photo-credit">Photo: Joplin, Missouri after the May 22, 2011 tornado · FEMA / public domain</div>
+        <div class="hero-photo-credit">
+            <a href="https://commons.wikimedia.org/wiki/File:Joplin_tornado_damage_(5884769735).jpg">Image Source</a>
+        </div>
     </header>
 
     <main>
@@ -53,8 +56,6 @@
             <p class="reveal dropcap"><strong>May 22, 2011.</strong> A cluster of storms is heading eastward. Meteorologists from the National Weather Service issue a tornado warning: “AT 514 PM CDT…NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A TORNADO NEAR RIVERTON…OR 4 MILES NORTH OF BAXTER SPRINGS…MOVING NORTHEAST AT 40 MPH.” Two convective cells merge with the parent storm. Intense rotation develops, and a “catastrophic” tornado forms — an EF5, with winds over 200 mph, the most severe rating on the National Weather Service’s Enhanced Fujita scale.</p>
 
             <p class="reveal">The Joplin tornado would become the nation’s deadliest in 60 years. It caused $4 billion in damage to Joplin’s infrastructure. It claimed the lives of 158 residents and injured over a thousand others. The 32 minutes of the tornado’s lifespan were horrific: employees of Joplin’s Pizza Hut watched their store manager get sucked out of the walk-in freezer in which they were sheltering. A nursing home was leveled, with 21 fatalities. Five patients at a local medical center died when power outages deactivated their ventilators. Was this avoidable, or an impending catastrophe that was going to happen regardless?</p>
-
-            <p class="reveal lede-emphasis"><strong>Before the storm, many disregarded the warnings.</strong></p>
 
             <blockquote class="pullquote reveal">
                 <p>“It started just like any other normal day. We heard the tornado sirens, but we didn’t pay much attention to them since they always go off in bad weather. We have lived here since 1968 and have experienced the drills repeatedly. This one was eerily different.”</p>
@@ -74,50 +75,26 @@
     <!-- ═══ ACCURACY: icon array ═══ -->
     <section class="prose-section" id="accuracy">
         <div class="prose">
-            <p class="section-eyebrow reveal">The Core Question</p>
-            <h2 class="section-head reveal">When a warning goes out, what actually happens?</h2>
+            <h2 class="section-head reveal">Warning Verification</h2>
             <p class="reveal">To get a rough geographic scope of the United States, we inspected data from the following cities: Albany, NY; Binghamton, NY; Boston, MA; Buffalo, NY; Columbia, SC; Wichita, KS; and Oklahoma City, OK. A warning is considered <em>verified</em> when a storm report falls inside the warning polygon and occurs before the warning expires.</p>
         </div>
 
-        <figure class="figure figure--light reveal">
+        <figure class="waffle reveal">
             <div class="icon-array-wrap reveal" id="iconArrayWrap">
                 <div class="ia-half">
-                    <div class="ia-header">
-                        <span class="acc-icon sv-icon" aria-hidden="true">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        </span>
-                        <div class="ia-meta">
-                            <span class="ia-type-label">Severe Thunderstorm</span>
-                            <div class="ia-pct-row"><span class="ia-pct teal">62.5%</span><span class="ia-pct-sub">verified</span></div>
-                        </div>
-                    </div>
+                    <p class="ia-label">Severe Thunderstorm Warnings</p>
+                    <p class="ia-stat"><span class="ia-pct teal">62.5<span class="ia-pct-sign">%</span></span><span class="ia-stat-sub teal">verified</span></p>
                     <div class="ia-grid" id="iaSvGrid"></div>
-                    <div class="ia-breakdown">
-                        <span><span class="acc-num teal">9,003</span> verified</span>
-                        <span><span class="acc-num coral">5,059</span> false alarms</span>
-                    </div>
+                    <p class="ia-breakdown"><b class="teal">9,003</b> verified, <b class="coral">5,059</b> false alarms</p>
                 </div>
-
-                <div class="ia-sep" aria-hidden="true"></div>
 
                 <div class="ia-half">
-                    <div class="ia-header">
-                        <span class="acc-icon to-icon" aria-hidden="true">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H3m14 4H7m12 4H9m8 4h-6m4 4h-2"/></svg>
-                        </span>
-                        <div class="ia-meta">
-                            <span class="ia-type-label">Tornado</span>
-                            <div class="ia-pct-row"><span class="ia-pct coral">24.9%</span><span class="ia-pct-sub">verified</span></div>
-                        </div>
-                    </div>
+                    <p class="ia-label">Tornado Warnings</p>
+                    <p class="ia-stat"><span class="ia-pct coral">24.9<span class="ia-pct-sign">%</span></span><span class="ia-stat-sub coral">verified</span></p>
                     <div class="ia-grid" id="iaToGrid"></div>
-                    <div class="ia-breakdown">
-                        <span><span class="acc-num teal">229</span> verified</span>
-                        <span><span class="acc-num coral">691</span> false alarms</span>
-                    </div>
+                    <p class="ia-breakdown"><b class="teal">229</b> verified, <b class="coral">691</b> false alarms</p>
                 </div>
             </div>
-            <figcaption>Each square is one warning. Teal verified; coral a false alarm.</figcaption>
         </figure>
 
         <div class="prose">
@@ -128,22 +105,34 @@
     <!-- ═══ MAP ═══ -->
     <section class="data-section" id="dashboard">
         <div class="prose">
-            <p class="section-eyebrow reveal">The Map</p>
-            <h2 class="section-head reveal">Unwarned vs. warned</h2>
+            <h2 class="section-head reveal">Unwarned vs. Warned</h2>
             <p class="reveal">Looking at storm reports and how many go unwarned when they should have been warned. Below is a dashboard of roughly 200,000 storm reports from weather forecast offices (WFOs) all across the country.</p>
         </div>
 
-        <figure class="panel reveal">
-            <div class="panel-header">
-                <h3 class="panel-title">Storm Reports Map</h3>
-                <div class="panel-right">
-                    <span class="legend-item"><span class="dot teal"></span> Warned</span>
-                    <span class="legend-item"><span class="dot coral"></span> Unwarned</span>
-                    <label class="chip-toggle"><input type="checkbox" id="filterWarned" checked><span class="chip">Warned</span></label>
-                    <label class="chip-toggle"><input type="checkbox" id="filterUnwarned" checked><span class="chip">Unwarned</span></label>
+        <figure class="map-feature reveal">
+            <p class="map-kicker">Storm reports · 2008–2025</p>
+
+            <div class="map-stats" id="mapStats">
+                <div class="map-stat">
+                    <span class="map-stat-num teal" id="mapStatWarned">115,924</span>
+                    <span class="map-stat-lab teal">warned</span>
+                </div>
+                <span class="map-stat-div" aria-hidden="true"></span>
+                <div class="map-stat">
+                    <span class="map-stat-num coral" id="mapStatUnwarned">84,076</span>
+                    <span class="map-stat-lab coral">unwarned</span>
                 </div>
             </div>
+
             <div id="map"></div>
+
+            <div class="map-foot">
+                <div class="map-keys">
+                    <label class="map-key"><input type="checkbox" id="filterWarned" checked><span class="map-key-dot teal"></span>Warned</label>
+                    <label class="map-key"><input type="checkbox" id="filterUnwarned" checked><span class="map-key-dot coral"></span>Unwarned</label>
+                </div>
+                <p class="map-source">~200,000 reports · 114 forecast offices</p>
+            </div>
         </figure>
 
         <div class="prose">
@@ -154,30 +143,22 @@
     <!-- ═══ GEO VARIATION ═══ -->
     <section class="data-section" id="geo">
         <div class="prose">
-            <p class="section-eyebrow reveal">Geographic Variation</p>
-            <h2 class="section-head reveal">Accuracy varies dramatically by location</h2>
+            <h2 class="section-head reveal">Location and Accuracy?</h2>
             <p class="reveal">Verification rates across WFOs vary greatly. Factors like population density, meteorologist staffing, radar availability, and storm frequency all play a role. WFO verification rates range from under 10% to over 70%.</p>
         </div>
 
-        <figure class="panel reveal">
-            <div class="panel-header">
-                <h3 class="panel-title">Distribution of Verification Rates</h3>
-                <span class="panel-subtitle">117 NWS forecast offices</span>
-            </div>
-            <div class="chart-container"><canvas id="chartGeo"></canvas></div>
-            <p class="chart-note">Most offices verify 40–70% of warnings. A significant tail falls below 30%.</p>
+        <figure class="chart-feature reveal">
+            <div class="dp-card" id="chartGeo"></div>
+            <p class="chart-note">Forecast offices by verification rate (10% increments)</p>
         </figure>
 
-        <div class="geo-ranks-row reveal">
-            <div class="rank-group">
-                <div class="rank-label teal">Most Reliable</div>
-                <div class="rank-list" id="rankTop"></div>
+        <figure class="spectrum reveal">
+            <div class="spec-head">
+                <div class="spec-head-side spec-head-low"><span class="rt-group-dot coral"></span>Lowest verification</div>
+                <div class="spec-head-side spec-head-high">Highest verification<span class="rt-group-dot teal"></span></div>
             </div>
-            <div class="rank-group">
-                <div class="rank-label coral">Least Reliable</div>
-                <div class="rank-list" id="rankBottom"></div>
-            </div>
-        </div>
+            <div class="spec-rows" id="specRows"></div>
+        </figure>
 
         <div class="prose">
             <p class="reveal">At first glance, the lowest-verification offices are in the western United States, while many East Coast WFOs have much higher rates. The lower rates can be attributed to low population density, a lack of storm reports, and large warning polygons. The verification area of a warning is calculated by taking the coverage of local storm reports over a warning; a local storm report verifies for an area within a 15 km radius. Regardless of external factors, low verification rates can prompt many to disregard warnings because they seem ineffective.</p>
@@ -187,20 +168,16 @@
     <!-- ═══ LEAD TIME ═══ -->
     <section class="data-section" id="leadtime">
         <div class="prose">
-            <p class="section-eyebrow reveal">The Accuracy Tradeoff</p>
-            <h2 class="section-head reveal">Earlier warnings, more false alarms</h2>
+            <h2 class="section-head reveal">Earlier Warnings and More False Alarms?</h2>
             <p class="reveal">Another statistic is <em>lead time</em> — how many minutes before an event (report) a warning was issued. This data also looks only at the lead times before verified warnings.</p>
         </div>
 
-        <figure class="panel reveal">
-            <div class="panel-header">
-                <h3 class="panel-title">Lead Time Distribution (verified warnings only)</h3>
-                <div class="panel-right">
-                    <span class="legend-item"><span class="dot teal"></span>Severe Thunderstorm</span>
-                    <span class="legend-item"><span class="dot coral"></span>Tornado</span>
-                </div>
-            </div>
+        <figure class="chart-feature reveal">
             <div class="chart-container"><canvas id="chartLeadtime"></canvas></div>
+            <div class="cf-legend cf-legend--below">
+                <span class="legend-item"><span class="dot teal"></span>Severe Thunderstorm</span>
+                <span class="legend-item"><span class="dot coral"></span>Tornado</span>
+            </div>
         </figure>
 
         <div class="prose">
@@ -211,8 +188,7 @@
     <!-- ═══ CLUSTERING ═══ -->
     <section class="data-section" id="clustering">
         <div class="prose">
-            <p class="section-eyebrow reveal">Warning Fatigue</p>
-            <h2 class="section-head reveal">False alarms don’t come alone</h2>
+            <h2 class="section-head reveal">False Alarm Streaks</h2>
             <p class="reveal">Tracking back to the eight WFOs we looked at initially, we quantified the longest streaks of unverified warnings. Consecutive false alarms could be the root cause of fatigue in these areas. We also calculated the average streaks and false-alarm rates per WFO.</p>
         </div>
 
@@ -226,35 +202,16 @@
     <!-- ═══ TRENDS ═══ -->
     <section class="data-section" id="trends">
         <div class="prose">
-            <p class="section-eyebrow reveal">Trends Over Time</p>
             <h2 class="section-head reveal">Are warnings getting better?</h2>
             <p class="reveal">Looking at U.S. verification rates as a whole from 2008 to 2025, we can see various fluctuations in accuracy over the years.</p>
         </div>
 
-        <div class="trend-callouts reveal">
-            <div class="trend-callout">
-                <span class="trend-callout-val teal" id="trendSVDelta">—</span>
-                <span class="trend-callout-label">Thunderstorm change, ’08–’25</span>
-            </div>
-            <div class="trend-callout">
-                <span class="trend-callout-val" id="trendBestYear">—</span>
-                <span class="trend-callout-label">Best thunderstorm year</span>
-            </div>
-            <div class="trend-callout">
-                <span class="trend-callout-val coral" id="trendTOAvg">—</span>
-                <span class="trend-callout-label">Avg. tornado verification</span>
-            </div>
-        </div>
-
-        <figure class="panel reveal">
-            <div class="panel-header">
-                <h3 class="panel-title">Verification Rate 2008–2025</h3>
-                <div class="panel-right">
-                    <span class="legend-item"><span class="dot teal"></span>Severe Thunderstorm</span>
-                    <span class="legend-item"><span class="dot coral"></span>Tornado</span>
-                </div>
-            </div>
+        <figure class="chart-feature reveal">
             <div class="chart-container"><canvas id="chartTrends"></canvas></div>
+            <div class="cf-legend cf-legend--below">
+                <span class="legend-item"><sspan class="dot teal"></span>Severe Thunderstorm</span>
+                <span class="legend-item"><span class="dot coral"></span>Tornado</span>
+            </div>
         </figure>
 
         <div class="prose">
@@ -265,8 +222,7 @@
     <!-- ═══ HEATMAP ═══ -->
     <section class="data-section" id="heatmap">
         <div class="prose">
-            <p class="section-eyebrow reveal">Your Warning History</p>
-            <h2 class="section-head reveal">365 days × 17 years</h2>
+            <h2 class="section-head reveal">365 Days × 17 Years</h2>
             <p class="reveal">Look up your own forecast office and investigate the warning days — the number of verified and unverified warnings on a given day from 2008 to 2025. Blue represents verified; red, unverified.</p>
         </div>
 
@@ -286,14 +242,30 @@
             </div>
         </div>
 
-        <div class="hm-stats" id="hmStats" style="display:none;">
-            <div class="hm-stat"><span class="hm-stat-val" id="hmStatTotal">—</span><span class="hm-stat-label">Total Warnings</span></div>
-            <div class="hm-stat verified"><span class="hm-stat-val" id="hmStatVerified">—</span><span class="hm-stat-label">Verified</span></div>
-            <div class="hm-stat unverified"><span class="hm-stat-val" id="hmStatUnverified">—</span><span class="hm-stat-label">Unverified</span></div>
-            <div class="hm-stat"><span class="hm-stat-val" id="hmStatRate">—</span><span class="hm-stat-label">Verify Rate</span></div>
+        <div class="map-stats hm-stats" id="hmStats" style="display:none;">
+            <div class="map-stat"><span class="map-stat-num" id="hmStatTotal">—</span><span class="map-stat-lab">Total warnings</span></div>
+            <span class="map-stat-div" aria-hidden="true"></span>
+            <div class="map-stat"><span class="map-stat-num teal" id="hmStatVerified">—</span><span class="map-stat-lab teal">Verified</span></div>
+            <span class="map-stat-div" aria-hidden="true"></span>
+            <div class="map-stat"><span class="map-stat-num coral" id="hmStatUnverified">—</span><span class="map-stat-lab coral">Unverified</span></div>
+            <span class="map-stat-div" aria-hidden="true"></span>
+            <div class="map-stat"><span class="map-stat-num" id="hmStatRate">—</span><span class="map-stat-lab">Verify rate</span></div>
         </div>
 
         <figure class="heatmap-panel" id="hmPanel" style="display:none;">
+            <div class="hm-cap">
+                <div class="hm-cap-titles">
+                    <span class="hm-cap-city" id="hmCapCity">—</span>
+                    <span class="hm-cap-sub" id="hmCapSub">Warning days · 2008–2025</span>
+                </div>
+                <div class="hm-range" id="hmRange" role="group" aria-label="Time range">
+                    <button type="button" class="hm-range-btn is-active" data-range="all">All years</button>
+                    <button type="button" class="hm-range-btn" data-range="10">10 yr</button>
+                    <button type="button" class="hm-range-btn" data-range="5">5 yr</button>
+                    <button type="button" class="hm-range-btn" data-range="1">1 yr</button>
+                </div>
+            </div>
+
             <div class="heatmap-canvas-scroll"><canvas id="hmCanvas"></canvas></div>
             <div class="heatmap-legend">
                 <span class="hm-leg-item"><span class="hm-leg-dot verified"></span>Verified</span>
@@ -309,13 +281,12 @@
     <!-- ═══ CLOSING ═══ -->
     <section class="prose-section closing" id="closing">
         <div class="prose">
-            <p class="section-eyebrow reveal">In Closing</p>
-            <h2 class="section-head reveal">Warning fatigue: the social factors</h2>
+            <h2 class="section-head reveal">Warning Fatigue: The Social Factors</h2>
             <p class="reveal">The different ways of warning communication are only one barrier to accurate information reaching people in time. How warnings are received — and specifically by whom — is something this analysis didn’t fully cover. But it’s the root problem that drives all of these statistics.</p>
             <p class="reveal">Take four different ways warnings get disseminated: a tornado warning can be delivered through NOAA weather radios, a smartphone WEA alert, a television broadcast, and a siren. These methods differ significantly. Research suggests people woken by a siren in the middle of the night are much less likely to take action than those who receive a personal alert. Smartphone alerts have their drawbacks — they require an internet connection and a device. Many rural communities, the same WFOs with extremely low verification rates, are the least served by these warning systems. They are often more vulnerable to severe weather and closely align with socioeconomic factors, too.</p>
             <p class="reveal">Another example is the 2023 Hawaii wildfires. Maui had warning sirens for tsunamis pointed toward the ocean, but they were never activated during the fire. Many residents who might have evacuated had the sirens been turned on received essentially no alert of the fires until they were dangerously close to their homes. Though well forecasted, emergency management failed to serve many residents, ultimately causing the deaths of over 100 people. Both weather fatigue and warning failure go together. Too many warnings can reduce trust, but a lack of warnings can significantly harm populations. This leads to the point of why WFOs overdo warnings: in many situations it is better to be safe than sorry — but it is a fine line to tread.</p>
             <p class="reveal">Regardless of the data, these trends are notable. The low warning verification rates line up with many of the ways people do not receive weather warnings — and with who is the most vulnerable.</p>
-            <p class="article-source reveal">Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank" rel="noopener">Iowa Environmental Mesonet COW</a> &nbsp;·&nbsp; Hero photo: FEMA, public domain &nbsp;·&nbsp; WeatherFatigue</p>
+            <p class="article-source reveal">Data from <a href="https://mesonet.agron.iastate.edu/cow/" target="_blank" rel="noopener">Iowa Environmental Mesonet COW</a></p>
         </div>
     </section>
 

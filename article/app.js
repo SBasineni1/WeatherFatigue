@@ -8,6 +8,7 @@ let allAggStats  = [];
 let allHeatmap   = null;
 let map, markerLayer;
 let currentHeatmapWFO = null;
+let currentHmRange = "all";   // "all" | "10" | "5" | "1"
 
 // ── WFO → City name ──
 const WFO_NAMES = {
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupFilterToggles();
     initMap();
     updateMapAndStats();
+    initMapStats();
     initHeatmap();
     initAnalytics();
 });
@@ -174,6 +176,40 @@ function initIconArray() {
 // Scroll Reveal
 // ══════════════════════════════════════════════════════════
 
+// Count up the map's headline stats once they scroll into view.
+function initMapStats() {
+    const wrap = document.getElementById("mapStats");
+    if (!wrap) return;
+    const targets = [
+        [document.getElementById("mapStatWarned"), 115924],
+        [document.getElementById("mapStatUnwarned"), 84076],
+    ];
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;  // leave the real numbers in place
+
+    const countUp = (el, target, dur = 1100) => {
+        if (!el) return;
+        const start = performance.now();
+        const tick = now => {
+            const p = Math.min((now - start) / dur, 1);
+            const eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * eased).toLocaleString();
+            if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    };
+
+    const obs = new IntersectionObserver((entries, o) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                targets.forEach(([el, t]) => countUp(el, t));
+                o.disconnect();
+            }
+        });
+    }, { threshold: 0.5 });
+    obs.observe(wrap);
+}
+
 function setupScrollReveal() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -189,9 +225,9 @@ function setupScrollReveal() {
 
 async function loadData() {
     const [reportsResp, aggResp, heatmapResp] = await Promise.all([
-        fetch("../viz/data/reports.json"),
-        fetch("../viz/data/agg_stats.json"),
-        fetch("../viz/data/heatmap.json"),
+        fetch("data/reports.json"),
+        fetch("data/agg_stats.json"),
+        fetch("data/heatmap.json"),
     ]);
     allReports  = await reportsResp.json();
     allAggStats = await aggResp.json();
@@ -213,16 +249,46 @@ function setupFilterToggles() {
 
 function initMap() {
     map = L.map("map", {
+        preferCanvas: true,            // render the 30k report dots on canvas
         zoomControl: true,
         attributionControl: false,
-        minZoom: 3,
-        maxBounds: [[15, -170], [72, -50]],
+        minZoom: 4,
+        maxBounds: [[20, -128], [52, -64]],   // CONUS only
         maxBoundsViscosity: 1.0,
-    }).setView([38.5, -96.0], 5);
+    }).setView([39.5, -96.0], 4);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        maxZoom: 18,
-    }).addTo(map);
+    // Dedicated basemap pane that sits *below* the report dots.
+    map.createPane("basemap");
+    map.getPane("basemap").style.zIndex = 350;
+
+    // Our own basemap: US states drawn from a local TopoJSON — no external tiles.
+    fetch("assets/us-states-topo.json")
+        .then(r => r.json())
+        .then(topo => {
+            // Keep only the lower 48 + DC — drop AK, HI, PR and the territories.
+            const nonConus = new Set(["02", "15", "60", "66", "69", "72", "78"]);
+            const conusGeoms = topo.objects.states.geometries.filter(g => !nonConus.has(g.id));
+            const states  = topojson.feature(topo, { type: "GeometryCollection", geometries: conusGeoms });
+            const outline = topojson.merge(topo, conusGeoms);   // single CONUS border
+
+            L.geoJSON(states, {
+                pane: "basemap",
+                interactive: false,
+                style: {
+                    color: "rgba(27, 26, 24, 0.14)",     // ink state borders
+                    weight: 0.6,
+                    fillColor: "#FBFAF6",                // clean paper land
+                    fillOpacity: 1,
+                },
+            }).addTo(map);
+
+            L.geoJSON(outline, {
+                pane: "basemap",
+                interactive: false,
+                style: { color: "rgba(27, 26, 24, 0.34)", weight: 1.2, fill: false },
+            }).addTo(map);
+        })
+        .catch(err => console.error("Basemap failed to load:", err));
 
     markerLayer = L.layerGroup().addTo(map);
 }
@@ -245,15 +311,15 @@ function updateMapAndStats() {
 
     for (const r of filtered.filter(r => !r.warned)) {
         L.circleMarker([r.lat0, r.lon0], {
-            radius: 2.5, color: "transparent",
-            fillColor: "#E07B5A", fillOpacity: 0.5, weight: 0,
+            radius: 2.6, color: "transparent",
+            fillColor: "#E07B5A", fillOpacity: 0.6, weight: 0,   // unwarned — coral
         }).bindPopup(`<b>${r.typetext}</b><br>WFO: ${r.wfo} · ${r.state}<br>Warned: No`)
           .addTo(markerLayer);
     }
     for (const r of filtered.filter(r => r.warned)) {
         L.circleMarker([r.lat0, r.lon0], {
-            radius: 2.5, color: "transparent",
-            fillColor: "#2E9CCA", fillOpacity: 0.5, weight: 0,
+            radius: 2.6, color: "transparent",
+            fillColor: "#2E9CCA", fillOpacity: 0.6, weight: 0,   // warned — teal
         }).bindPopup(`<b>${r.typetext}</b><br>WFO: ${r.wfo} · ${r.state}<br>Warned: Yes`)
           .addTo(markerLayer);
     }
@@ -279,13 +345,9 @@ function animateCounter(id, target) {
 // ══════════════════════════════════════════════════════════
 
 const HM = {
-    CELL_W: 2.6,
-    CELL_H: 13,
-    GAP_X:  0.6,
-    GAP_Y:  2,
-    LABEL_Y: 22,   // month-label row height
-    LABEL_X: 38,   // year-label column width
-    PAD:     8,
+    LABEL_Y: 26,   // month-label row height
+    LABEL_X: 46,   // year-label column width
+    PAD:     10,
 };
 
 const MONTH_STARTS = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
@@ -316,6 +378,30 @@ function initHeatmap() {
     populateList("");
     setupHmSearch();
     setupHmTooltip();
+    setupHmRange();
+}
+
+// ── Time-range toggle (All / 10 / 5 / 1 yr) ──────────────
+function hmFilterYears(yearData) {
+    const all = Object.keys(yearData).sort();
+    if (currentHmRange === "all") return all;
+    return all.slice(-parseInt(currentHmRange, 10));
+}
+
+function setupHmRange() {
+    const box = document.getElementById("hmRange");
+    if (!box) return;
+    box.addEventListener("click", (e) => {
+        const btn = e.target.closest(".hm-range-btn");
+        if (!btn) return;
+        currentHmRange = btn.dataset.range;
+        box.querySelectorAll(".hm-range-btn")
+           .forEach(b => b.classList.toggle("is-active", b === btn));
+        if (currentHeatmapWFO) {
+            updateHmStats(currentHeatmapWFO);
+            renderHeatmap(currentHeatmapWFO);
+        }
+    });
 }
 
 // ── Populate list ────────────────────────────────────────
@@ -435,117 +521,160 @@ function selectWFO(wfo, city) {
     closeList();
     populateList(""); // refresh selected highlight
 
-    updateHmStats(wfo);
-    renderHeatmap(wfo);
-
     document.getElementById("hmPanel").style.display = "block";
     document.getElementById("hmEmpty").style.display = "none";
     document.getElementById("hmStats").style.display = "flex";
+    const cap = document.getElementById("hmCapCity");
+    if (cap) cap.textContent = city || wfo;
+
+    updateHmStats(wfo);
+    renderHeatmap(wfo);   // measure after the panel is visible so it fills the width
 }
 
 // ── Stats ─────────────────────────────────────────────────
 
 function updateHmStats(wfo) {
     const yearData = allHeatmap.heatmap[wfo] || {};
+    const years = hmFilterYears(yearData);
     let total = 0, verified = 0;
-    for (const yr of Object.values(yearData))
-        for (const day of Object.values(yr)) { total += day.v + day.u; verified += day.v; }
+    years.forEach(y => {
+        for (const day of Object.values(yearData[y] || {})) { total += day.v + day.u; verified += day.v; }
+    });
     const rate = total > 0 ? ((verified / total) * 100).toFixed(1) + "%" : "—";
     document.getElementById("hmStatTotal").textContent     = total.toLocaleString();
     document.getElementById("hmStatVerified").textContent  = verified.toLocaleString();
     document.getElementById("hmStatUnverified").textContent = (total - verified).toLocaleString();
     document.getElementById("hmStatRate").textContent      = rate;
+
+    const sub = document.getElementById("hmCapSub");
+    if (sub) {
+        const span = years.length === 0 ? ""
+            : years[0] === years[years.length - 1] ? ` · ${years[0]}`
+            : ` · ${years[0]}–${years[years.length - 1]}`;
+        sub.textContent = `Warning days${span}`;
+    }
 }
 
 // ══════════════════════════════════════════════════════════
 // Canvas renderer
 // ══════════════════════════════════════════════════════════
 
+function hmRowSize(n) {
+    if (n <= 1)  return { ROW_H: 96, RIDGE_H: 82 };
+    if (n <= 5)  return { ROW_H: 54, RIDGE_H: 46 };
+    if (n <= 10) return { ROW_H: 40, RIDGE_H: 33 };
+    return { ROW_H: 30, RIDGE_H: 25 };
+}
+
 function renderHeatmap(wfo) {
     const canvas   = document.getElementById("hmCanvas");
     const ctx      = canvas.getContext("2d");
     const yearData = allHeatmap.heatmap[wfo] || {};
-    const years    = Object.keys(yearData).sort();
+    const years    = hmFilterYears(yearData);
+    const { ROW_H, RIDGE_H } = hmRowSize(years.length);
 
     const totalDays = 366;
-    const W = HM.LABEL_X + totalDays * (HM.CELL_W + HM.GAP_X) + HM.PAD;
-    const H = HM.LABEL_Y  + years.length   * (HM.CELL_H + HM.GAP_Y) + HM.PAD;
+    // Size to fill the container width — no horizontal scroll.
+    const scroll = canvas.parentElement;
+    const availW = Math.max(620, (scroll ? scroll.clientWidth : 1080));
+    const plotW  = availW - HM.LABEL_X - HM.PAD;
+    const step   = plotW / (totalDays - 1);
+    const W = availW;
+    const H = HM.LABEL_Y + years.length * ROW_H + HM.PAD;
 
     const dpr = window.devicePixelRatio || 1;
     canvas.width  = W * dpr;
     canvas.height = H * dpr;
     canvas.style.width  = W + "px";
     canvas.style.height = H + "px";
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
 
-    // Background
-    ctx.fillStyle = "#1D1F3E";
-    ctx.fillRect(0, 0, W, H);
+    // Peak daily warning count over the *visible* years → ridge height scale
+    let maxDaily = 1;
+    years.forEach(y => {
+        for (const d of Object.values(yearData[y] || {})) maxDaily = Math.max(maxDaily, d.v + d.u);
+    });
+    const hOf = (n) => n <= 0 ? 0 : Math.sqrt(n / maxDaily) * RIDGE_H;
 
-    // Month labels
-    ctx.fillStyle = "#8888a8";
-    ctx.font = `600 9px 'Inter', sans-serif`;
-    ctx.textAlign = "left";
-    MONTH_STARTS.forEach((doy, mi) => {
-        const x = HM.LABEL_X + (doy - 1) * (HM.CELL_W + HM.GAP_X);
-        ctx.fillText(MONTH_NAMES[mi], x, HM.LABEL_Y - 6);
+    const TEAL = "#2E9CCA", CORAL = "#E07B5A", CORAL_LINE = "#C85B39";
+    const xOf = (doy) => HM.LABEL_X + (doy - 1) * step;
+
+    // Alternating row bands (readability)
+    years.forEach((year, yi) => {
+        if (yi % 2 === 0) return;
+        const top = HM.LABEL_Y + yi * ROW_H;
+        ctx.fillStyle = "rgba(27,26,24,0.022)";
+        ctx.fillRect(HM.LABEL_X - 2, top, plotW + 4, ROW_H);
     });
 
-    // Subtle month lines
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
-    ctx.lineWidth = 1;
-    MONTH_STARTS.forEach(doy => {
-        if (doy === 1) return;
-        const x = HM.LABEL_X + (doy - 1) * (HM.CELL_W + HM.GAP_X) - 1;
+    // Month gridlines + labels
+    ctx.font = `600 10px 'Hanken Grotesk', sans-serif`;
+    ctx.textBaseline = "alphabetic";
+    MONTH_STARTS.forEach((doy, mi) => {
+        const x = xOf(doy);
+        ctx.strokeStyle = "rgba(27,26,24,0.06)";
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(x, HM.LABEL_Y);
-        ctx.lineTo(x, H - HM.PAD);
+        ctx.moveTo(Math.round(x) + 0.5, HM.LABEL_Y - 4);
+        ctx.lineTo(Math.round(x) + 0.5, H - HM.PAD);
+        ctx.stroke();
+        ctx.fillStyle = "#6E6A61";
+        ctx.textAlign = "left";
+        ctx.fillText(MONTH_NAMES[mi], x + 3, HM.LABEL_Y - 9);
+    });
+
+    // One area-ridge per year
+    years.forEach((year, yi) => {
+        const yBase  = HM.LABEL_Y + yi * ROW_H + RIDGE_H + (ROW_H - RIDGE_H) / 2;
+        const dayMap = yearData[year] || {};
+
+        // baseline hairline
+        ctx.strokeStyle = "rgba(27,26,24,0.12)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(HM.LABEL_X, yBase + 0.5);
+        ctx.lineTo(HM.LABEL_X + plotW, yBase + 0.5);
+        ctx.stroke();
+
+        // year label
+        ctx.fillStyle = "#3B3833";
+        ctx.font = `600 11px 'Hanken Grotesk', sans-serif`;
+        ctx.textAlign = "right";
+        ctx.fillText(year, HM.LABEL_X - 9, yBase - RIDGE_H * 0.12);
+
+        // total envelope = coral, verified share overlaid = teal
+        const traceTop = (heightAt) => {
+            for (let doy = 1; doy <= totalDays; doy++) {
+                const cell = dayMap[String(doy)];
+                const t = cell ? cell.v + cell.u : 0;
+                ctx.lineTo(xOf(doy), yBase - heightAt(cell, t));
+            }
+        };
+        const fillEnvelope = (heightAt, color) => {
+            ctx.beginPath();
+            ctx.moveTo(xOf(1), yBase);
+            traceTop(heightAt);
+            ctx.lineTo(xOf(totalDays), yBase);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        };
+
+        fillEnvelope((cell, t) => hOf(t), CORAL);
+        fillEnvelope((cell, t) => t > 0 ? hOf(t) * (cell.v / t) : 0, TEAL);
+
+        // crisp silhouette stroke on the total ridge
+        ctx.beginPath();
+        ctx.moveTo(xOf(1), yBase);
+        traceTop((cell, t) => hOf(t));
+        ctx.lineTo(xOf(totalDays), yBase);
+        ctx.strokeStyle = "rgba(20,18,16,0.7)";
+        ctx.lineWidth = 1;
         ctx.stroke();
     });
 
-    // Year rows
-    years.forEach((year, yi) => {
-        const yTop = HM.LABEL_Y + yi * (HM.CELL_H + HM.GAP_Y);
-
-        ctx.fillStyle = "#8888a8";
-        ctx.font = `500 9px 'Inter', sans-serif`;
-        ctx.textAlign = "right";
-        ctx.fillText(year, HM.LABEL_X - 5, yTop + HM.CELL_H * 0.72);
-
-        const dayMap = yearData[year] || {};
-
-        for (let doy = 1; doy <= totalDays; doy++) {
-            const x    = HM.LABEL_X + (doy - 1) * (HM.CELL_W + HM.GAP_X);
-            const cell = dayMap[String(doy)];
-
-            if (!cell || cell.v + cell.u === 0) {
-                ctx.fillStyle = "rgba(255,255,255,0.04)";
-                ctx.fillRect(x, yTop, HM.CELL_W, HM.CELL_H);
-                continue;
-            }
-
-            const { v, u } = cell;
-            const total  = v + u;
-            const opacity = Math.min(1.0, 0.45 + Math.log(total + 1) / Math.log(30) * 0.55);
-
-            if (v === 0) {
-                ctx.fillStyle = `rgba(224,123,90,${opacity})`;
-                ctx.fillRect(x, yTop, HM.CELL_W, HM.CELL_H);
-            } else if (u === 0) {
-                ctx.fillStyle = `rgba(46,156,202,${opacity})`;
-                ctx.fillRect(x, yTop, HM.CELL_W, HM.CELL_H);
-            } else {
-                const verH = Math.max(1, Math.round(HM.CELL_H * (v / total)));
-                const unvH = HM.CELL_H - verH;
-                ctx.fillStyle = `rgba(224,123,90,${opacity})`;
-                ctx.fillRect(x, yTop, HM.CELL_W, unvH);
-                ctx.fillStyle = `rgba(46,156,202,${opacity})`;
-                ctx.fillRect(x, yTop + unvH, HM.CELL_W, verH);
-            }
-        }
-    });
-
-    canvas._hmMeta = { years, yearData };
+    canvas._hmMeta = { years, yearData, step, rowH: ROW_H };
 }
 
 // ══════════════════════════════════════════════════════════
@@ -558,7 +687,7 @@ function setupHmTooltip() {
 
     canvas.addEventListener("mousemove", (e) => {
         if (!canvas._hmMeta) return;
-        const { years, yearData } = canvas._hmMeta;
+        const { years, yearData, step, rowH } = canvas._hmMeta;
         const rect = canvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
@@ -567,18 +696,10 @@ function setupHmTooltip() {
         const relY = my - HM.LABEL_Y;
         if (relX < 0 || relY < 0) { tooltip.style.display = "none"; return; }
 
-        const col = Math.floor(relX / (HM.CELL_W + HM.GAP_X));
-        const row = Math.floor(relY / (HM.CELL_H + HM.GAP_Y));
-        const doy = col + 1;
+        const doy = Math.round(relX / step) + 1;
+        const row = Math.floor(relY / rowH);
 
         if (doy < 1 || doy > 366 || row < 0 || row >= years.length) {
-            tooltip.style.display = "none"; return;
-        }
-
-        // Make sure we're inside the cell, not the gap
-        const cellX = relX - col * (HM.CELL_W + HM.GAP_X);
-        const cellY = relY - row * (HM.CELL_H + HM.GAP_Y);
-        if (cellX > HM.CELL_W || cellY > HM.CELL_H) {
             tooltip.style.display = "none"; return;
         }
 
@@ -630,7 +751,7 @@ function setupHmTooltip() {
 const CHART_DEFAULTS = {
     color: '#AAABB8',
     borderColor: 'rgba(200,208,224,0.06)',
-    font: { family: "'Inter', sans-serif", size: 11 },
+    font: { family: "'Hanken Grotesk', sans-serif", size: 11 },
 };
 
 function chartDefaults() {
@@ -646,7 +767,7 @@ async function initAnalytics() {
     chartDefaults();
     let analytics;
     try {
-        const r = await fetch('../viz/data/analytics.json');
+        const r = await fetch('data/analytics.json');
         analytics = await r.json();
     } catch(e) { console.warn('analytics.json not found', e); return; }
 
@@ -686,8 +807,8 @@ function buildGeoChart(geo) {
     const el = document.getElementById('chartGeo');
     if (!el || !geo?.length) return;
 
-    // Bin WFOs by verification rate
-    const bins = [0,10,20,30,40,50,60,70,80,90,100];
+    // Bin WFOs by verification rate (no office exceeds 80%, so we stop there)
+    const bins = [0,10,20,30,40,50,60,70,80];
     const labels = bins.slice(0,-1).map((b,i) => `${b}–${bins[i+1]}%`);
     const counts = new Array(bins.length - 1).fill(0);
     geo.forEach(d => {
@@ -695,59 +816,50 @@ function buildGeoChart(geo) {
         counts[idx]++;
     });
 
-    new Chart(el, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                data: counts,
-                backgroundColor: counts.map((_, i) => {
-                    const pct = (i + 0.5) / (counts.length);
-                    const r = Math.round(224 - pct * (224 - 46));
-                    const g = Math.round(123 - pct * (123 - 156));
-                    const b = Math.round(90  + pct * (202 - 90));
-                    return `rgba(${r},${g},${b},0.75)`;
-                }),
-                borderWidth: 0, borderRadius: 4,
-            }],
-        },
-        options: {
-            ...baseChartOptions({ title: { text: 'Offices' } }),
-            plugins: {
-                ...baseChartOptions().plugins,
-                tooltip: {
-                    ...baseChartOptions().plugins.tooltip,
-                    callbacks: {
-                        label: ctx => `${ctx.raw} offices in this range`,
-                    },
-                },
-            },
-            scales: {
-                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', maxRotation: 45 } },
-                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', stepSize: 1 },
-                     title: { display: true, text: 'Number of offices', color: '#7B82A8', font: { size: 10 } } },
-            },
-        },
-    });
+    // Vertical bar chart — office count per verification-rate band.
+    const color = i => {
+        const t = i / (counts.length - 1);
+        const r = Math.round(230 + t * (28  - 230));   // #E66340 → #1CA0D6
+        const g = Math.round(99  + t * (160 - 99));
+        const b = Math.round(64  + t * (214 - 64));
+        return `rgb(${r},${g},${b})`;
+    };
+    const maxC = Math.max(...counts);
+    const cols = counts.map((c, i) => `
+        <div class="vbar-col">
+            <span class="vbar-val">${c}</span>
+            <div class="vbar-fill" style="--h:${(c / maxC) * 88}%;background:${color(i)};transition-delay:${i * 60}ms"></div>
+        </div>`).join('');
+    const axis = labels.map(l => `<span class="vbar-label">${l}</span>`).join('');
+    el.innerHTML = `<div class="vbars">${cols}</div><div class="vbar-axis">${axis}</div>`;
 
-    // Top 5 and Bottom 5
+    // Diverging spectrum: best 5 (teal, right) vs worst 5 (coral, left)
     const valid = geo.filter(d => d.total >= 100);
-    buildRankList('rankTop',    valid.slice(0, 5),  'teal');
-    buildRankList('rankBottom', valid.slice(-5).reverse(), 'coral');
+    buildSpectrum(valid.slice(0, 5), valid.slice(-5).reverse());
 }
 
-function buildRankList(id, items, color) {
-    const el = document.getElementById(id);
+function buildSpectrum(highest, lowest) {
+    const el = document.getElementById('specRows');
     if (!el) return;
-    el.innerHTML = items.map((d, i) => `
-        <div class="rank-item">
-            <span class="rank-num">${i+1}</span>
-            <span class="rank-city" title="${d.city}">${d.city}</span>
-            <div class="rank-bar">
-                <div class="rank-bar-fill" style="width:${d.rate*100}%;background:var(--${color === 'teal' ? 'accent' : 'coral'})"></div>
+    el.innerHTML = highest.map((high, i) => {
+        const low = lowest[i];
+        const hp = high.rate * 100;
+        const lp = low.rate * 100;
+        return `
+        <div class="spec-row">
+            <div class="spec-side spec-low">
+                <span class="spec-city">${low.city}</span>
+                <span class="spec-pct coral">${lp.toFixed(0)}<span class="spec-pct-sign">%</span></span>
+                <div class="spec-track"><div class="spec-fill coral" style="width:${lp}%"></div></div>
             </div>
-            <span class="rank-pct" style="color:var(--${color === 'teal' ? 'accent' : 'coral'})">${(d.rate*100).toFixed(0)}%</span>
-        </div>`).join('');
+            <div class="spec-rank">${i + 1}</div>
+            <div class="spec-side spec-high">
+                <div class="spec-track"><div class="spec-fill teal" style="width:${hp}%"></div></div>
+                <span class="spec-pct teal">${hp.toFixed(0)}<span class="spec-pct-sign">%</span></span>
+                <span class="spec-city">${high.city}</span>
+            </div>
+        </div>`;
+    }).join('');
 }
 
 // ── 2. Trends chart ───────────────────────────────────────
@@ -768,11 +880,13 @@ function buildTrendsChart(trends) {
                 {
                     label: 'Severe Thunderstorm',
                     data: svRates,
-                    borderColor: '#2E9CCA',
-                    backgroundColor: 'rgba(46,156,202,0.08)',
+                    borderColor: '#1CA0D6',
+                    backgroundColor: 'rgba(28,160,214,0.10)',
                     borderWidth: 2.5,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#2E9CCA',
+                    pointRadius: 3.5,
+                    pointBackgroundColor: '#1CA0D6',
+                    pointBorderColor: '#FBFAF6',
+                    pointBorderWidth: 1.5,
                     tension: 0.35,
                     fill: true,
                     spanGaps: true,
@@ -780,31 +894,51 @@ function buildTrendsChart(trends) {
                 {
                     label: 'Tornado',
                     data: toRates,
-                    borderColor: '#E07B5A',
-                    backgroundColor: 'rgba(224,123,90,0.08)',
+                    borderColor: '#E66340',
+                    backgroundColor: 'rgba(230,99,64,0.10)',
                     borderWidth: 2.5,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#E07B5A',
+                    pointRadius: 3.5,
+                    pointBackgroundColor: '#E66340',
+                    pointBorderColor: '#FBFAF6',
+                    pointBorderWidth: 1.5,
                     tension: 0.35,
                     fill: true,
                     spanGaps: true,
                 },
             ],
         },
+        // Bright, on-paper editorial options
         options: {
-            ...baseChartOptions(),
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 800, easing: 'easeOutQuart' },
+            interaction: { mode: 'index', intersect: false },
             plugins: {
-                ...baseChartOptions().plugins,
                 legend: { display: false },
                 tooltip: {
-                    ...baseChartOptions().plugins.tooltip,
+                    backgroundColor: '#FBFAF6',
+                    titleColor: '#1B1A18',
+                    bodyColor: '#3B3833',
+                    borderColor: 'rgba(27,26,24,0.14)',
+                    borderWidth: 1,
+                    padding: 12, cornerRadius: 10, displayColors: true, boxPadding: 4,
+                    titleFont: { family: 'Hanken Grotesk', size: 13, weight: '600' },
+                    bodyFont:  { family: 'Hanken Grotesk', size: 12.5 },
                     callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}%` },
                 },
             },
             scales: {
-                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' } },
-                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', callback: v => v + '%' },
-                     min: 0, max: 100 },
+                x: {
+                    grid: { display: false },
+                    border: { color: 'rgba(27,26,24,0.18)' },
+                    ticks: { color: '#3B3833', maxRotation: 0, autoSkip: true, maxTicksLimit: 10, font: { family: 'Newsreader', size: 12.5 } },
+                },
+                y: {
+                    grid: { color: 'rgba(27,26,24,0.07)' },
+                    border: { display: false },
+                    ticks: { color: '#3B3833', callback: v => v + '%', font: { family: 'Newsreader', size: 12.5 } },
+                    min: 0, max: 100,
+                },
             },
         },
     });
@@ -826,7 +960,7 @@ function buildTrendsCallouts(trends) {
     const deltaEl = document.getElementById('trendSVDelta');
     const bestEl  = document.getElementById('trendBestYear');
     const toEl    = document.getElementById('trendTOAvg');
-    if (deltaEl) { deltaEl.textContent = `${sign}${delta}pp`; deltaEl.className = `trend-callout-val ${delta > 0 ? 'teal' : 'coral'}`; }
+    if (deltaEl) { deltaEl.textContent = `${sign}${delta}pp`; deltaEl.className = `map-stat-num ${delta > 0 ? 'teal' : 'coral'}`; }
     if (bestEl)  bestEl.textContent = String(bestYear);
     if (toEl)    toEl.textContent   = toAvg + '%';
 }
@@ -847,25 +981,45 @@ function buildLeadtimeChart(leadtime) {
             labels: bins,
             datasets: [
                 { label: 'Severe Thunderstorm', data: svPct,
-                  backgroundColor: 'rgba(46,156,202,0.65)', borderWidth: 0, borderRadius: 3 },
+                  backgroundColor: 'rgb(28,160,214)', hoverBackgroundColor: 'rgb(28,160,214)',   // no color shift on hover
+                  borderWidth: 0, borderRadius: 4 },
                 { label: 'Tornado', data: toPct,
-                  backgroundColor: 'rgba(224,123,90,0.65)', borderWidth: 0, borderRadius: 3 },
+                  backgroundColor: 'rgb(230,99,64)', hoverBackgroundColor: 'rgb(230,99,64)',     // no color shift on hover
+                  borderWidth: 0, borderRadius: 4 },
             ],
         },
+        // Bright, on-paper editorial options (matches the geo histogram)
         options: {
-            ...baseChartOptions(),
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 800, easing: 'easeOutQuart' },
             plugins: {
-                ...baseChartOptions().plugins,
                 legend: { display: false },
                 tooltip: {
-                    ...baseChartOptions().plugins.tooltip,
+                    backgroundColor: '#FBFAF6',
+                    titleColor: '#1B1A18',
+                    bodyColor: '#3B3833',
+                    borderColor: 'rgba(27,26,24,0.14)',
+                    borderWidth: 1,
+                    padding: 12, cornerRadius: 10, displayColors: true, boxPadding: 4,
+                    titleFont: { family: 'Hanken Grotesk', size: 13, weight: '600' },
+                    bodyFont:  { family: 'Hanken Grotesk', size: 12.5 },
                     callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}% of verified warnings` },
                 },
             },
             scales: {
-                x: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8' } },
-                y: { grid: { color: 'rgba(200,208,224,0.06)' }, ticks: { color: '#7B82A8', callback: v => v + '%' },
-                     title: { display: true, text: '% of verified warnings', color: '#7B82A8', font: { size: 10 } } },
+                x: {
+                    grid: { display: false },
+                    border: { color: 'rgba(27,26,24,0.18)' },
+                    ticks: { color: '#3B3833', font: { family: 'Newsreader', size: 13, weight: '500' } },
+                },
+                y: {
+                    grace: '6%',
+                    grid: { color: 'rgba(27,26,24,0.07)' },
+                    border: { display: false },
+                    ticks: { color: '#3B3833', callback: v => v + '%', font: { family: 'Newsreader', size: 14, weight: '500' } },
+                    title: { display: true, text: '% of verified warnings', color: '#3B3833', font: { family: 'Newsreader', size: 13.5, style: 'italic', weight: '500' } },
+                },
             },
         },
     });
@@ -878,36 +1032,33 @@ function buildClusterScatter(clustering) {
     if (!el || !clustering) return;
 
     el.innerHTML = `
-        <div class="panel">
-            <div class="panel-header">
-                <h3 class="panel-title">False Alarm Rate vs. Max Consecutive Streak</h3>
-                <div class="panel-right">
-                    <span class="legend-item"><span class="dot coral"></span> High streak (≥14)</span>
-                    <span class="legend-item"><span class="dot teal"></span> Lower streak</span>
-                    <span class="panel-subtitle" style="margin-left:8px;">Bubble size = avg streak length</span>
-                </div>
-            </div>
-            <div class="chart-container" style="height:480px;">
+        <figure class="chart-feature">
+            <p class="map-kicker">False Alarm Rate Vs. Consecutive False Alarms</p>
+            <div class="chart-container" style="height:440px;">
                 <canvas id="chartCluster"></canvas>
             </div>
-        </div>`;
+            <div class="cf-legend cf-legend--below">
+                <span class="legend-item"><span class="dot coral"></span>High streak (≥14)</span>
+                <span class="legend-item"><span class="dot teal"></span>Lower streak</span>
+            </div>
+        </figure>`;
 
     const points = Object.entries(clustering).map(([wfo, c]) => {
         const far = (c.false_total / c.total) * 100;
         return {
             x: far,
             y: c.max_streak,
-            r: 5 + (c.avg_streak - 1.5) * 9,
+            r: 6 + (c.avg_streak - 1.5) * 8,
             wfo,
             city: c.city.split(',')[0],
             avg_streak: c.avg_streak,
-            far: far.toFixed(1)
+            far: far.toFixed(1),
         };
     });
 
     const isHigh = p => p.y >= 14;
-    const colors  = points.map(p => isHigh(p) ? 'rgba(224,123,90,0.82)' : 'rgba(46,156,202,0.72)');
-    const borders = points.map(p => isHigh(p) ? '#E07B5A' : '#2E9CCA');
+    const colors  = points.map(p => isHigh(p) ? 'rgba(230,99,64,0.42)' : 'rgba(28,160,214,0.4)');
+    const borders = points.map(p => isHigh(p) ? '#E66340' : '#1CA0D6');
 
     const labelPlugin = {
         id: 'bubbleLabels',
@@ -919,71 +1070,94 @@ function buildClusterScatter(clustering) {
                 const { x, y } = elem.getProps(['x', 'y'], true);
                 const radius = elem.options.radius || pt.r;
                 ctx.save();
-                ctx.font = "600 9px 'Inter', sans-serif";
-                ctx.fillStyle = isHigh(pt) ? '#F0A080' : '#7DCCE8';
+                ctx.font = "600 11px 'Hanken Grotesk', sans-serif";
+                ctx.fillStyle = isHigh(pt) ? '#C85B39' : '#1F7CA3';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
-                ctx.fillText(pt.wfo, x, y - radius - 4);
+                ctx.fillText(pt.wfo, x, y - radius - 5);
                 ctx.restore();
             });
         }
     };
 
+    // Faint washes framing the two corners
+    const zones = {
+        id: 'zones',
+        beforeDatasetsDraw(chart) {
+            const { ctx, chartArea, scales } = chart;
+            ctx.save();
+            ctx.font = "italic 600 11px 'Newsreader', serif";
+
+            // High FAR · long streaks (top-right) — coral
+            const xH = scales.x.getPixelForValue(42);
+            const yH = scales.y.getPixelForValue(13);
+            ctx.fillStyle = 'rgba(230,99,64,0.06)';
+            ctx.fillRect(xH, chartArea.top, chartArea.right - xH, yH - chartArea.top);
+            ctx.fillStyle = 'rgba(200,91,57,0.75)';
+            ctx.textAlign = 'right';
+            ctx.fillText('Long Streaks', chartArea.right - 10, chartArea.top + 16);
+
+            // Low FAR · short streaks (bottom-left) — teal
+            const xL = scales.x.getPixelForValue(40);
+            const yL = scales.y.getPixelForValue(12);
+            ctx.fillStyle = 'rgba(28,160,214,0.06)';
+            ctx.fillRect(chartArea.left, yL, xL - chartArea.left, chartArea.bottom - yL);
+            ctx.fillStyle = 'rgba(31,124,163,0.8)';
+            ctx.textAlign = 'left';
+            ctx.fillText('Short Streaks', chartArea.left + 10, chartArea.bottom - 8);
+
+            ctx.restore();
+        }
+    };
+
     new Chart(document.getElementById('chartCluster'), {
         type: 'bubble',
-        data: {
-            datasets: [{
-                data: points,
-                backgroundColor: colors,
-                borderColor: borders,
-                borderWidth: 1.5
-            }]
-        },
-        plugins: [labelPlugin],
+        data: { datasets: [{ data: points, backgroundColor: colors, borderColor: borders, borderWidth: 2, hoverBorderWidth: 2 }] },
+        plugins: [zones, labelPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
                 tooltip: {
+                    backgroundColor: '#FBFAF6',
+                    titleColor: '#1B1A18',
+                    bodyColor: '#3B3833',
+                    borderColor: 'rgba(27,26,24,0.14)',
+                    borderWidth: 1,
+                    padding: 12, cornerRadius: 10, displayColors: false,
+                    titleFont: { family: 'Hanken Grotesk', size: 13, weight: '600' },
+                    bodyFont:  { family: 'Hanken Grotesk', size: 12.5 },
                     callbacks: {
+                        title(items) { return items[0].raw.city + ' (' + items[0].raw.wfo + ')'; },
                         label(ctx) {
                             const d = ctx.raw;
                             return [
-                                `${d.city} (${d.wfo})`,
-                                `FAR: ${d.far}%`,
-                                `Max streak: ${d.y} in a row`,
-                                `Avg streak: ${d.avg_streak}`
+                                `False-alarm rate: ${d.far}%`,
+                                `Worst streak: ${d.y} in a row`,
+                                `Average streak: ${d.avg_streak}`,
                             ];
-                        },
-                        title: () => ''
+                        }
                     }
                 }
             },
+            layout: { padding: { top: 14, right: 10 } },
             scales: {
                 x: {
-                    title: {
-                        display: true,
-                        text: 'False Alarm Rate (%)',
-                        color: '#AAABB8',
-                        font: { size: 11, family: "'Inter', sans-serif" }
-                    },
-                    min: 25, max: 75,
-                    ticks: { color: '#AAABB8', callback: v => v + '%' },
-                    grid: { color: 'rgba(170,171,184,0.08)' },
-                    border: { color: 'rgba(170,171,184,0.15)' }
+                    title: { display: true, text: 'False alarm rate', color: '#6E6A61',
+                             font: { size: 12.5, family: 'Newsreader', style: 'italic' } },
+                    min: 25, max: 70,
+                    ticks: { color: '#6E6A61', callback: v => v + '%', font: { family: 'Newsreader', size: 12 } },
+                    grid: { color: 'rgba(27,26,24,0.06)', borderDash: [2, 4] },
+                    border: { color: 'rgba(27,26,24,0.16)' }
                 },
                 y: {
-                    title: {
-                        display: true,
-                        text: 'Max consecutive false alarms',
-                        color: '#AAABB8',
-                        font: { size: 11, family: "'Inter', sans-serif" }
-                    },
-                    min: 6, max: 20,
-                    ticks: { color: '#AAABB8', stepSize: 2 },
-                    grid: { color: 'rgba(170,171,184,0.08)' },
-                    border: { color: 'rgba(170,171,184,0.15)' }
+                    title: { display: true, text: 'Max consecutive false alarms', color: '#6E6A61',
+                             font: { size: 12.5, family: 'Newsreader', style: 'italic' } },
+                    min: 7, max: 18,
+                    ticks: { color: '#6E6A61', stepSize: 2, font: { family: 'Newsreader', size: 12 } },
+                    grid: { color: 'rgba(27,26,24,0.06)', borderDash: [2, 4] },
+                    border: { color: 'rgba(27,26,24,0.16)' }
                 }
             }
         }
